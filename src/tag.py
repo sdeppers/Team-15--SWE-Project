@@ -13,6 +13,10 @@ class View():
         SCREEN_SIZE = (WINDOW_WIDTH,WINDOW_HEIGHT)
         self.screen = pygame.display.set_mode(SCREEN_SIZE, 32)
 
+    def load_image(self, image_path):
+        image_to_load = pygame.image.load(image_path)
+        
+
     def update(self):
 
         BLACK_COLOR = (0,0,0)
@@ -32,12 +36,6 @@ class View():
         clock_timer = 0
         clock_timer += pygame.time.get_ticks()
         # print(clock_timer)
-
-        # loading and scaling splash art
-        # splash_art = pygame.image.load('assets/gui/logo.jpg')
-        # new_size = (WINDOW_WIDTH,WINDOW_HEIGHT)
-        # scaled_splash_art = pygame.transform.scale(splash_art, new_size)
-        # image_rect = scaled_splash_art.get_rect(center=(WINDOW_WIDTH,WINDOW_HEIGHT))
 
         if (clock_timer < 2500):
             splash_art = pygame.image.load('assets/gui/logo.jpg')
