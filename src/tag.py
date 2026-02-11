@@ -72,4 +72,4 @@ while c.keep_going:
     v.update()
     pygame.time.wait(40)
     #sleep(0.04)
-print("\n  BOTTOM TEXT   ")
+print("\n  BOTTOM TEXT2   ")
