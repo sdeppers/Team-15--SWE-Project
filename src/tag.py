@@ -36,9 +36,9 @@ class View():
         clock_timer = 0
         clock_timer += pygame.time.get_ticks()
         # print(clock_timer)
-
+        # Filepath to splash image starts with '..' because it's located in parent directory
         if (clock_timer < 2500):
-            splash_art = pygame.image.load('assets/gui/logo.jpg')
+            splash_art = pygame.image.load('../assets/gui/logo.jpg')
             new_size = (WINDOW_WIDTH,WINDOW_HEIGHT)
             scaled_splash_art = pygame.transform.scale(splash_art, new_size)
             image_rect = scaled_splash_art.get_rect(center=(WINDOW_WIDTH,WINDOW_HEIGHT))
