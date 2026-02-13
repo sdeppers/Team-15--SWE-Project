@@ -15,8 +15,8 @@
 
 # CONTRIBUTORS
 
-Name: Spencer Epperson    Github Alias: sdeppers
-Name: Gabriel McMillan    Github Alias: paracetic
-Name: Saul Sanchez        Github Alias: sauls8
-Name: Eshaan Thakore      Github Alias: eshaan-thakore
-Name: Elijah Wiggins      Github Alias: elijwiggins
+Name: Spencer Epperson    Github Alias: sdeppers\
+Name: Gabriel McMillan    Github Alias: paracetic\
+Name: Saul Sanchez        Github Alias: sauls8\
+Name: Eshaan Thakore      Github Alias: eshaan-thakore\
+Name: Elijah Wiggins      Github Alias: elijwiggins\
