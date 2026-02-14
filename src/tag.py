@@ -3,9 +3,24 @@ import time
 import json
 import math
 import random
+import socket
 
 WINDOW_WIDTH = 1000;
 WINDOW_HEIGHT = 1000;
+
+UDP_IP = "127.0.0.1"  
+UDP_PORT = 5005     
+bufferSize = 1024
+
+#create socket
+sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+
+#bind to ip and port
+sock.bind((UDP_IP, UDP_PORT))
+
+#pretty sure this means the code won't stop if it doesn't hear 
+#Anything from the socket which is what we want
+sock.setblocking(False)
 
 class View():
 
@@ -77,6 +92,22 @@ class Controller():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_q:
                     self.keep_going = False
+        
+        try: #we're trying to read what's happening over udp
+            bytesAddressPair = sock.recvfrom(bufferSize)
+            message = bytesAddressPair[0]
+            address = bytesAddressPair[1]
+            clientMsg = "Message from Client{}".format(message)
+            clientIP = "Client IP Address:{}".format(address)
+
+            print(clientMsg)
+            print(clientIP)
+        except BlockingIOError: #handles the program waiting for udp
+
+            pass
+    def sendData(self, message): #send device addresses over udp
+        sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+        print("Sent", message)
 
 
 
@@ -95,4 +126,5 @@ while c.keep_going:
     
     pygame.time.wait(40)
     #sleep(0.04)
+    c.sendData("Hello through UDP")
 print("\n  BOTTOM TEXT2   ")
