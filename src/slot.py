@@ -1,4 +1,3 @@
-
 import pygame
 
 # slot is a horizontal bar: wide and short
@@ -23,6 +22,7 @@ class Slot:
         self.y = y
         self.w = w if w is not None else Slot.DEFAULT_W
         self.h = h if h is not None else Slot.DEFAULT_H
+        self.device = None
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.w, self.h)
@@ -34,17 +34,29 @@ class Slot:
     def get_name_rect(self):
         return pygame.Rect(self.x + ID_WIDTH, self.y, self.w - ID_WIDTH, self.h)
 
-    def draw(self, surface, font, bg_color=(40, 44, 50), border_color=(80, 84, 92), text_color=(240, 240, 240)):
+    def draw(self, surface, font, bg_color=(40, 44, 50), border_color=(80, 84, 92), text_color=(240, 240, 240),
+             selected = False, edit_field = None, edit_text = ""):
+        
         rect = self.get_rect()
-        pygame.draw.rect(surface, bg_color, rect)
-        pygame.draw.rect(surface, border_color, rect, 1)
+
+        if selected:
+            pygame.draw.rect(surface, (100, 150, 200), rect)
+        else:
+            pygame.draw.rect(surface, bg_color, rect)
+
+        # pygame.draw.rect(surface, bg_color, rect)
+        pygame.draw.rect(surface, border_color, rect, 2 if selected else 1)
 
         # line between id and player_name areas
         div_x = self.x + ID_WIDTH
         pygame.draw.line(surface, DIVIDER_COLOR, (div_x, self.y + 2), (div_x, self.y + self.h - 2), 1)
 
         # draw id text in the left zone (clip if too long)
-        id_str = (self.id or "")[:6]
+        if selected and edit_field == 'id':
+            id_str = (edit_text or "")[:6]
+        else:
+            id_str = (self.id or "")[:6]
+        # id_str = (self.id or "")[:6]
         if id_str:
             id_surf = font.render(id_str, True, text_color)
             id_rect = id_surf.get_rect(midleft=(self.x + 2, self.y + self.h // 2))
@@ -53,7 +65,11 @@ class Slot:
             surface.blit(id_surf, id_rect)
 
         # draw player_name in the right zone (clip if too long)
-        name_str = (self.player_name or "")[:10]
+        if selected and edit_field == 'name':
+            name_str = (edit_text or "")[:10]
+        else:
+            name_str = (self.player_name or "")[:10]
+        # name_str = (self.player_name or "")[:10]
         if name_str:
             name_surf = font.render(name_str, True, text_color)
             name_rect = name_surf.get_rect(midleft=(self.x + ID_WIDTH + 2, self.y + self.h // 2))
