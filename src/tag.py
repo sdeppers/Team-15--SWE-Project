@@ -3,6 +3,7 @@ import time
 import json
 import math
 import random
+import socket
 
 from slot import Slot, ID_WIDTH
 
@@ -19,6 +20,20 @@ FIELD_LABEL_MARGIN = 6
 # space between the team name (RED/GREEN) and the id/player_name labels
 TEAM_LABEL_TO_FIELD_MARGIN = 14
 
+
+UDP_IP = "127.0.0.1"  
+UDP_PORT = 5005     
+bufferSize = 1024
+
+#create socket
+sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+
+#bind to ip and port
+sock.bind((UDP_IP, UDP_PORT))
+
+#pretty sure this means the code won't stop if it doesn't hear 
+#Anything from the socket which is what we want
+sock.setblocking(False)
 
 class View():
 
@@ -122,6 +137,8 @@ class Controller():
         self.view = view
         self.keep_going = True
         self.current_screen = "splash"
+        self.devices = set() # list of devices to brodcast to with (ip, port)
+        self.devices.add((UDP_IP, UDP_PORT))
         pygame.key.set_repeat()
 
     def update(self):
@@ -132,7 +149,27 @@ class Controller():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_q:
                     self.keep_going = False
+        
+        try: #we're trying to read what's happening over udp
+            bytesAddressPair = sock.recvfrom(bufferSize)
+            message = bytesAddressPair[0]
+            address = bytesAddressPair[1]
+            clientMsg = "Message from Client{}".format(message)
+            clientIP = "Client IP Address:{}".format(address)
+            self.devices.add(address) #adds devices recieved from if they are new
 
+            print(clientMsg)
+            print(clientIP)
+        except BlockingIOError: #handles the program waiting for udp
+
+            pass
+    def sendData(self, message): #send to a device over udp
+        sock.sendto(message.encode(), (UDP_IP, UDP_PORT)) 
+        print("Sent", message)
+    def broadcast(self, message): #send to all devices in list
+        for device in self.devices:
+            sock.sendto(message.encode(), device)
+        print(f"Broadcast '{message}' to {len(self.devices)} devices")
 
 
 
@@ -148,4 +185,7 @@ while c.keep_going:
     c.update()
     v.update(c.current_screen)
     pygame.time.wait(40)
+    #sleep(0.04)
+    #c.sendData("Hello through UDP")
+    c.broadcast("Hello Broadcast UDP")
 print("\n  BOTTOM TEXT2   ")
