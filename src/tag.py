@@ -86,6 +86,8 @@ class Controller():
     def __init__(self, view):
         self.view = view
         self.keep_going = True
+        self.devices = set() # list of devices to brodcast to with (ip, port)
+        self.devices.add((UDP_IP, UDP_PORT))
         pygame.key.set_repeat()
     def update(self):
         for event in pygame.event.get():
@@ -99,16 +101,20 @@ class Controller():
             address = bytesAddressPair[1]
             clientMsg = "Message from Client{}".format(message)
             clientIP = "Client IP Address:{}".format(address)
+            self.devices.add(address) #adds devices recieved from if they are new
 
             print(clientMsg)
             print(clientIP)
         except BlockingIOError: #handles the program waiting for udp
 
             pass
-    def sendData(self, message): #send device addresses over udp
-        sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+    def sendData(self, message): #send to a device over udp
+        sock.sendto(message.encode(), (UDP_IP, UDP_PORT)) 
         print("Sent", message)
-
+    def broadcast(self, message): #send to all devices in list
+        for device in self.devices:
+            sock.sendto(message.encode(), device)
+        print(f"Broadcast '{message}' to {len(self.devices)} devices")
 
 
 
@@ -126,5 +132,6 @@ while c.keep_going:
     
     pygame.time.wait(40)
     #sleep(0.04)
-    c.sendData("Hello through UDP")
+    #c.sendData("Hello through UDP")
+    c.broadcast("Hello Broadcast UDP")
 print("\n  BOTTOM TEXT2   ")
