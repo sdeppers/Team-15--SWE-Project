@@ -74,7 +74,7 @@ class View():
         # show splash for the first few seconds
         if clock_timer < SPLASH_DURATION_MS:
             self.screen.fill(BLACK_COLOR)
-            splash_art = pygame.image.load('assets/gui/logo.jpg')
+            splash_art = pygame.image.load('../assets/gui/logo.jpg')
             new_size = (WINDOW_WIDTH, WINDOW_HEIGHT)
             scaled_splash_art = pygame.transform.scale(splash_art, new_size)
             self.screen.blit(scaled_splash_art, (0, 0))
