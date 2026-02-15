@@ -6,11 +6,17 @@ import random
 import socket
 
 from slot import Slot, ID_WIDTH
+from python_pg import add_player
 
 WINDOW_WIDTH = 1000
 WINDOW_HEIGHT = 1000
 
 SPLASH_DURATION_MS = 2500
+
+# Arrays of size 32, storing all player names and ID's
+# Defaults are inID and inName
+INPUT_ID = ["inID"] * Slot.TOTAL_SLOTS
+INPUT_NAME = ["inName"] * Slot.TOTAL_SLOTS
 
 # player entry layout: one column on the left, one on the right
 SLOT_MARGIN = 50
@@ -318,8 +324,6 @@ class Controller():
             if len(self.editText) < max_len:
                 self.editText += event.unicode
                 # self.saveSlotText() | <- REMOVED to fix message sent after every char update
-
-        
         
     def saveSlotText(self):
         if self.selectedSlot is not None and self.selectedSlot < len(self.view.slots):
@@ -330,10 +334,17 @@ class Controller():
                     slot.device = self.lastAddress
                     #self.devices.add(self.lastAddress)
                 self.broadcast(f"Equipment Code:{slot.id}")
+                INPUT_ID[slot.slot_index] = slot.id
 
             elif self.editField == 'name':
                 slot.player_name = self.editText
                 self.broadcast(f"Player Name:{slot.player_name}")
+                INPUT_NAME[slot.slot_index] = slot.player_name
+            # Adds player info to databse if both slots are populated
+            if INPUT_ID[slot.slot_index] != "inID":
+                if INPUT_NAME[slot.slot_index] != "inName":
+                    add_player(INPUT_ID[slot.slot_index],INPUT_NAME[slot.slot_index])
+
 
 
     # UDP Send/Broadcast Methods
