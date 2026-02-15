@@ -184,7 +184,7 @@ class Controller():
             self.current_screen = "player_entry"
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_q:
+                if event.key == pygame.K_ESCAPE:
                     self.keep_going = False
                 elif self.current_screen == "player_entry":
                     self.handleKeyInput(event)
