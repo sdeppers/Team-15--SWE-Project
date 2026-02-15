@@ -184,7 +184,7 @@ class Controller():
             self.current_screen = "player_entry"
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_q:
+                if event.key == pygame.K_ESCAPE:
                     self.keep_going = False
                 elif self.current_screen == "player_entry":
                     self.handleKeyInput(event)
@@ -355,7 +355,7 @@ class Controller():
 
 
 
-print("TOP TEXT\n")
+#print("TOP TEXT\n")
 pygame.init()
 pygame.font.init()
 clock = pygame.time.Clock()
@@ -370,4 +370,4 @@ while c.keep_going:
     #sleep(0.04)
     #c.sendData("Hello through UDP")
     c.broadcast("Hello Broadcast UDP")
-print("\n  BOTTOM TEXT2   ")
+#print("\n  BOTTOM TEXT2   ")
