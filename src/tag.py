@@ -217,6 +217,10 @@ class Controller():
         if self.view.slots is None:
             return
 
+        # Added to ensure text entries are saved if user clicks into another box while still editing current box
+        if self.selectedSlot is not None and self.editField in ['id', 'name']:
+            self.saveSlotText()
+
         x, y = pos
 
         # Check for IP box click first
@@ -308,7 +312,7 @@ class Controller():
         # handling text input
         if event.key == pygame.K_BACKSPACE:
             self.editText = self.editText[:-1]
-            self.saveSlotText()
+            # self.saveSlotText() | <- REMOVED to fix message sent after every char update
         elif event.key == pygame.K_RETURN:
             # save current text to slot
             self.saveSlotText()
@@ -324,7 +328,7 @@ class Controller():
             max_len = 6 if self.editField == 'id' else 10
             if len(self.editText) < max_len:
                 self.editText += event.unicode
-                self.saveSlotText()
+                # self.saveSlotText() | <- REMOVED to fix message sent after every char update
 
         
         
