@@ -20,21 +20,6 @@ FIELD_LABEL_MARGIN = 6
 # space between the team name (RED/GREEN) and the id/player_name labels
 TEAM_LABEL_TO_FIELD_MARGIN = 14
 
-
-UDP_IP = "127.0.0.1"  
-UDP_PORT = 5005     
-bufferSize = 1024
-
-#create socket
-sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-
-#bind to ip and port
-sock.bind((UDP_IP, UDP_PORT))
-
-#pretty sure this means the code won't stop if it doesn't hear 
-#Anything from the socket which is what we want
-sock.setblocking(False)
-
 class View():
 
     def __init__(self):
@@ -62,7 +47,7 @@ class View():
             slot_y = SLOT_START_Y + i * (slot_h + SLOT_ROW_GAP)
             self.slots.append(Slot(Slot.NUM_PER_SIDE + i, "", "", right_x, slot_y, slot_w, slot_h))
 
-    def update(self, screen_name, selectedSlot = None, editField = None, editText = "", ip_text = UDP_IP, port_text = UDP_PORT):
+    def update(self, screen_name, selectedSlot = None, editField = None, editText = "", ip_text = "", port_text = ""):
         BLACK_COLOR = (0, 0, 0)
         WHITE_COLOR = (255, 255, 255)
         RED_COLOR = (150, 0, 0)
@@ -163,8 +148,8 @@ class Controller():
         self.view = view
         self.keep_going = True
         self.current_screen = "splash"
-        self.devices = set() # list of devices to brodcast to with (ip, port)
-        self.devices.add((UDP_IP, UDP_PORT))
+        #self.devices = set() # list of devices to brodcast to with (ip, port)
+        #self.devices.add((UDP_IP, UDP_PORT))
         pygame.key.set_repeat()
 
         # vars to track selected slot
@@ -172,11 +157,24 @@ class Controller():
         self.editField = None # either ID or name
         self.editText = ""
 
+        #UDP
+        self.Send_UDP_IP = "127.0.0.1"  
+        self.Receive_UDP_PORT = 5005
+        self.Target_port = 5005
+        self.bufferSize = 1024
+
+        self.recv_sock =socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.recv_sock.bind(("0.0.0.0", self.Receive_UDP_PORT))
+        self.recv_sock.setblocking(False)
+
+        self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.send_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
         # vars for editing ip/port
         self.editing_ip = False
         self.editing_port = False
-        self.ip_text = UDP_IP
-        self.port_text = str(UDP_PORT)
+        self.ip_text = self.Send_UDP_IP
+        self.port_text = str(self.Target_port)
 
     def update(self):
         # after splash time is up, switch to player entry
@@ -193,7 +191,7 @@ class Controller():
                     self.handleMouseClick(event.pos)
         
         try: #we're trying to read what's happening over udp
-            bytesAddressPair = sock.recvfrom(bufferSize)
+            bytesAddressPair = self.recv_sock.recvfrom(self.bufferSize)
             message = bytesAddressPair[0]
             address = bytesAddressPair[1]
 
@@ -201,7 +199,7 @@ class Controller():
 
             clientMsg = "Message from Client{}".format(message)
             clientIP = "Client IP Address:{}".format(address)
-            self.devices.add(address) #adds devices recieved from if they are new
+            #self.devices.add(address) #adds devices recieved from if they are new
 
             print(clientMsg)
             print(clientIP)
@@ -267,13 +265,8 @@ class Controller():
 
         if self.editField == 'ip':
             if event.key == pygame.K_RETURN:
-                global UDP_IP, UDP_PORT, sock
                 self.ip_text = self.editText
-                UDP_IP = self.ip_text
-                sock.close()
-                sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-                sock.bind((UDP_IP, UDP_PORT))
-                sock.setblocking(False)
+                self.Send_UDP_IP = self.ip_text
                 self.editing_ip = False
                 self.editField = None
                 self.editText = ""
@@ -287,11 +280,7 @@ class Controller():
             if event.key == pygame.K_RETURN:
                 #global UDP_IP, UDP_PORT, sock
                 self.port_text = self.editText
-                UDP_PORT = int(self.port_text)
-                sock.close()
-                sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-                sock.bind((UDP_IP, UDP_PORT))
-                sock.setblocking(False)
+                self.Target_port = int(self.port_text)
                 self.editing_port = False
                 self.editField = None
                 self.editText = ""
@@ -339,7 +328,7 @@ class Controller():
                 slot.id = self.editText
                 if self.lastAddress:
                     slot.device = self.lastAddress
-                    self.devices.add(self.lastAddress)
+                    #self.devices.add(self.lastAddress)
                 self.broadcast(f"Equipment Code:{slot.id}")
 
             elif self.editField == 'name':
@@ -348,13 +337,12 @@ class Controller():
 
 
     # UDP Send/Broadcast Methods
-    def sendData(self, message): #send to a device over udp
-        sock.sendto(message.encode(), (UDP_IP, UDP_PORT)) 
-        print("Sent", message)
+    #def sendData(self, message): #send to a device over udp
+    #    self.send_sock.sendto(message.encode(), (UDP_IP, UDP_PORT)) 
+    #    print("Sent", message)
     def broadcast(self, message): #send to all devices in list
-        for device in self.devices:
-            sock.sendto(message.encode(), device)
-        print(f"Broadcast '{message}' to {len(self.devices)} devices")
+        self.send_sock.sendto(message.encode(), (self.Send_UDP_IP, self.Target_port))
+        print(f"Broadcast '{message}' to {self.Send_UDP_IP}:{self.Target_port}")
 
 
 
@@ -366,6 +354,7 @@ clock = pygame.time.Clock()
 
 v = View()
 c = Controller(v)
+c.broadcast("Photon Started")
 while c.keep_going:
     c.update()
     # passing edit info to view so it can render selected player slots
@@ -374,4 +363,4 @@ while c.keep_going:
     #sleep(0.04)
     #c.sendData("Hello through UDP")
     c.broadcast("Hello Broadcast UDP")
-#print("\n  BOTTOM TEXT2   ")
+print("\n  BOTTOM TEXT2   ")
