@@ -74,7 +74,7 @@ class View():
         # show splash for the first few seconds
         if clock_timer < SPLASH_DURATION_MS:
             self.screen.fill(BLACK_COLOR)
-            splash_art = pygame.image.load('../assets/gui/logo.jpg')
+            splash_art = pygame.image.load('assets/gui/logo.jpg')
             new_size = (WINDOW_WIDTH, WINDOW_HEIGHT)
             scaled_splash_art = pygame.transform.scale(splash_art, new_size)
             self.screen.blit(scaled_splash_art, (0, 0))
@@ -164,6 +164,11 @@ class Controller():
         self.keep_going = True
         self.current_screen = "splash"
         self.devices = set() # list of devices to brodcast to with (ip, port)
+
+        # ADDED: mapping equipment ID strings to (IP,PORT) tuples
+        self.known_equipment = {}
+
+
         self.devices.add((UDP_IP, UDP_PORT))
         pygame.key.set_repeat()
 
@@ -197,14 +202,19 @@ class Controller():
             message = bytesAddressPair[0]
             address = bytesAddressPair[1]
 
+            equipment_id = message.decode('utf-8').strip() # cleaning ID string up
+            self.known_equipment[equipment_id] = address # adding ID->Address key-val pair to known equipment dictionary
+
             self.lastAddress = address # added to track last sender
 
             clientMsg = "Message from Client{}".format(message)
             clientIP = "Client IP Address:{}".format(address)
             self.devices.add(address) #adds devices recieved from if they are new
 
-            print(clientMsg)
-            print(clientIP)
+            print(f"Equipment {equipment_id} checked in from {address}")
+
+            #print(clientMsg)
+            #print(clientIP)
         except BlockingIOError: #handles the program waiting for udp
 
             pass
@@ -216,6 +226,10 @@ class Controller():
     def handleMouseClick(self, pos):
         if self.view.slots is None:
             return
+
+        # Added to ensure text entries are saved if user clicks into another box while still editing current box
+        if self.selectedSlot is not None and self.editField in ['id', 'name']:
+            self.saveSlotText()
 
         x, y = pos
 
@@ -308,7 +322,7 @@ class Controller():
         # handling text input
         if event.key == pygame.K_BACKSPACE:
             self.editText = self.editText[:-1]
-            self.saveSlotText()
+            # self.saveSlotText() | <- REMOVED to fix message sent after every char update
         elif event.key == pygame.K_RETURN:
             # save current text to slot
             self.saveSlotText()
@@ -324,7 +338,7 @@ class Controller():
             max_len = 6 if self.editField == 'id' else 10
             if len(self.editText) < max_len:
                 self.editText += event.unicode
-                self.saveSlotText()
+                # self.saveSlotText() | <- REMOVED to fix message sent after every char update
 
         
         
@@ -333,14 +347,28 @@ class Controller():
             slot = self.view.slots[self.selectedSlot]
             if self.editField == 'id':
                 slot.id = self.editText
-                if self.lastAddress:
-                    slot.device = self.lastAddress
-                    self.devices.add(self.lastAddress)
-                self.broadcast(f"Equipment Code:{slot.id}")
+
+                if slot.id in self.known_equipment:
+                    slot.device = self.known_equipment[slot.id]
+                    print(f"successfully linked slot {slot.slot_index} to {slot.device}")
+                    msg = f"Registered to slot {slot.slot_index}"
+                    sock.sendto(msg.encode(), slot.device)
+                else:
+                    print(f"Warning: Equipment ID {slot.id} hasn't been seen on network yet")
+                    slot.device = None
+
+
+                # if self.lastAddress:
+                #     slot.device = self.lastAddress
+                #     self.devices.add(self.lastAddress)
+                # self.broadcast(f"Equipment Code:{slot.id}")
 
             elif self.editField == 'name':
                 slot.player_name = self.editText
-                self.broadcast(f"Player Name:{slot.player_name}")
+                if slot.device:
+                    msg = f"player name: {slot.player_name}"
+                    sock.sendto(msg.encode(), slot.device)
+                #self.broadcast(f"Player Name:{slot.player_name}")
 
 
     # UDP Send/Broadcast Methods
