@@ -362,5 +362,5 @@ while c.keep_going:
     pygame.time.wait(40)
     #sleep(0.04)
     #c.sendData("Hello through UDP")
-    c.broadcast("Hello Broadcast UDP")
+    #c.broadcast("Hello Broadcast UDP")
 print("\n  BOTTOM TEXT2   ")
