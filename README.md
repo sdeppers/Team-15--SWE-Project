@@ -11,6 +11,9 @@
 the contents of that field using keyboard inputs, and press ENTER to finalize changes.\
 **NOTE:** An invalid IP or port number will result in termination of the application.
 4. Press the **ESCAPE** key at any time to **terminate** the application.
+5. In the virtual machine's terminal, execute the command\
+**psql -U student -d photon -c "Select * FROM players;"**\
+to view the new contents of the database.
 
 # CONTRIBUTORS
 

@@ -130,24 +130,25 @@ class View():
             pygame.display.flip()
             return
 
+        # view test code
         # default main screen (grey box, red box, fishes text)
-        self.screen.fill([0, 100, 150])
-        font = pygame.font.SysFont(None, 72)
-        grey_box = pygame.Rect(185, 10, 500, 800)
-        pygame.draw.rect(self.screen, GREY_COLOR, grey_box)
-        red_box = pygame.Rect(500, 600, 300, 300)
-        pygame.draw.rect(self.screen, RED_COLOR, red_box)
-        fish_string = "press q to exit"
-        fishes_string = "F I S H E S"
-        text_surface = font.render(fish_string, True, WHITE_COLOR)
-        self.screen.blit(text_surface, (200, 410))
-        text_surface = font.render(fish_string, True, BLACK_COLOR)
-        self.screen.blit(text_surface, (198, 408))
-        text_surface = font.render(fishes_string, True, WHITE_COLOR)
-        self.screen.blit(text_surface, (500, 500))
-        text_surface = font.render(fishes_string, True, BLACK_COLOR)
-        self.screen.blit(text_surface, (498, 502))
-        pygame.display.flip()
+        # self.screen.fill([0, 100, 150])
+        # font = pygame.font.SysFont(None, 72)
+        # grey_box = pygame.Rect(185, 10, 500, 800)
+        # pygame.draw.rect(self.screen, GREY_COLOR, grey_box)
+        # red_box = pygame.Rect(500, 600, 300, 300)
+        # pygame.draw.rect(self.screen, RED_COLOR, red_box)
+        # fish_string = "press q to exit"
+        # fishes_string = "F I S H E S"
+        # text_surface = font.render(fish_string, True, WHITE_COLOR)
+        # self.screen.blit(text_surface, (200, 410))
+        # text_surface = font.render(fish_string, True, BLACK_COLOR)
+        # self.screen.blit(text_surface, (198, 408))
+        # text_surface = font.render(fishes_string, True, WHITE_COLOR)
+        # self.screen.blit(text_surface, (500, 500))
+        # text_surface = font.render(fishes_string, True, BLACK_COLOR)
+        # self.screen.blit(text_surface, (498, 502))
+        # pygame.display.flip()
             
 class Controller():
     def __init__(self, view):
@@ -340,7 +341,8 @@ class Controller():
                 slot.player_name = self.editText
                 self.broadcast(f"Player Name:{slot.player_name}")
                 INPUT_NAME[slot.slot_index] = slot.player_name
-            # Adds player info to databse if both slots are populated
+            # Add player into to database if both slots are populated
+            # *** MAY ADD REDUNDANT ENTRIES UPON EDITING PLAYER DATA
             if INPUT_ID[slot.slot_index] != "inID":
                 if INPUT_NAME[slot.slot_index] != "inName":
                     add_player(INPUT_ID[slot.slot_index],INPUT_NAME[slot.slot_index])
@@ -374,4 +376,4 @@ while c.keep_going:
     #sleep(0.04)
     #c.sendData("Hello through UDP")
     #c.broadcast("Hello Broadcast UDP")
-print("\n  BOTTOM TEXT2   ")
+    #print("\n  BOTTOM TEXT2   ")
