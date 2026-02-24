@@ -1,0 +1,224 @@
+import pygame
+import time
+import json
+import math
+import random
+import socket
+
+from slot import Slot, ID_WIDTH
+from python_pg import add_player
+from view import View
+
+SPLASH_DURATION_MS = 2500
+
+# Arrays of size 32, storing all player names and ID's
+# Defaults are inID and inName
+INPUT_ID = ["inID"] * Slot.TOTAL_SLOTS
+INPUT_NAME = ["inName"] * Slot.TOTAL_SLOTS
+
+class Controller():
+    def __init__(self, view):
+        self.view = view
+        self.keep_going = True
+        self.current_screen = "splash"
+        #self.devices = set() # list of devices to brodcast to with (ip, port)
+        #self.devices.add((UDP_IP, UDP_PORT))
+        pygame.key.set_repeat()
+
+        # vars to track selected slot
+        self.selectedSlot = None
+        self.editField = None # either ID or name
+        self.editText = ""
+
+        #UDP
+        self.Send_UDP_IP = "127.0.0.1"  
+        self.Receive_UDP_PORT = 5005
+        self.Target_port = 5005
+        self.bufferSize = 1024
+
+        self.recv_sock =socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+        self.recv_sock.bind(("0.0.0.0", self.Receive_UDP_PORT))
+        self.recv_sock.setblocking(False)
+
+        self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.send_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+        # vars for editing ip/port
+        self.editing_ip = False
+        self.editing_port = False
+        self.ip_text = self.Send_UDP_IP
+        self.port_text = str(self.Target_port)
+
+    def update(self):
+        # after splash time is up, switch to player entry
+        if self.current_screen == "splash" and pygame.time.get_ticks() > SPLASH_DURATION_MS:
+            self.current_screen = "player_entry"
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    self.keep_going = False
+                elif self.current_screen == "player_entry":
+                    self.handleKeyInput(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if self.current_screen == "player_entry":
+                    self.handleMouseClick(event.pos)
+        
+        try: #we're trying to read what's happening over udp
+            bytesAddressPair = self.recv_sock.recvfrom(self.bufferSize)
+            message = bytesAddressPair[0]
+            address = bytesAddressPair[1]
+
+            self.lastAddress = address # added to track last sender
+
+            clientMsg = "Message from Client{}".format(message)
+            clientIP = "Client IP Address:{}".format(address)
+            #self.devices.add(address) #adds devices recieved from if they are new
+
+            print(clientMsg)
+            print(clientIP)
+        except BlockingIOError: #handles the program waiting for udp
+
+            pass
+
+    # ---------------------------------
+    # Mouse and Keyboard Event Handlers
+    # ---------------------------------
+    
+    def handleMouseClick(self, pos):
+        if self.view.slots is None:
+            return
+
+        # Added to ensure text entries are saved if user clicks into another box while still editing current box
+        if self.selectedSlot is not None and self.editField in ['id', 'name']:
+            self.saveSlotText()
+
+        x, y = pos
+
+        # Check for IP box click first
+        if 50 <= x <= 250 and 30 <= y <= 60:
+            self.editField = 'ip'
+            self.editing_ip = True
+            self.editing_port = False
+            self.editText = self.ip_text
+            self.selectedSlot = None
+            return
+
+        # Check for Port box click
+        if 300 <= x <= 400 and 30 <= y <= 60:
+            self.editField = 'port'
+            self.editing_port = True
+            self.editing_ip = False
+            self.editText = self.port_text
+            self.selectedSlot = None
+            return
+
+        # Now check for slot clicks
+        slot_clicked = False
+        for slot in self.view.slots:
+            slot_rect = slot.get_rect()
+            if slot_rect.collidepoint(x, y):
+                self.selectedSlot = slot.slot_index
+                id_rect = slot.get_id_rect()
+                if id_rect.collidepoint(x, y):
+                    self.editField = 'id'
+                else:
+                    self.editField = 'name'
+                self.editText = ""
+                slot_clicked = True
+                break
+
+        # Deselect if click was not on any slot or IP/Port box
+        if not slot_clicked:
+            self.selectedSlot = None
+            self.editField = None
+            self.editText = ""
+            
+
+    def handleKeyInput(self, event):
+
+        if self.editField == 'ip':
+            if event.key == pygame.K_RETURN:
+                self.ip_text = self.editText
+                self.Send_UDP_IP = self.ip_text
+                self.editing_ip = False
+                self.editField = None
+                self.editText = ""
+            elif event.key == pygame.K_BACKSPACE:
+                self.editText = self.editText[:-1]
+            elif event.unicode and event.unicode.isprintable():
+                self.editText += event.unicode
+            return
+        
+        if self.editField == 'port':
+            if event.key == pygame.K_RETURN:
+                #global UDP_IP, UDP_PORT, sock
+                self.port_text = self.editText
+                self.Target_port = int(self.port_text)
+                self.editing_port = False
+                self.editField = None
+                self.editText = ""
+            elif event.key == pygame.K_BACKSPACE:
+                self.editText = self.editText[:-1]
+            elif event.unicode and event.unicode.isdigit():
+                self.editText += event.unicode
+            return
+
+        # if no slot / editfield been selected:
+        if self.selectedSlot is None or self.editField is None:
+            if event.key == pygame.K_UP and self.selectedSlot is not None:
+                self.selectedSlot = max(0, self.selectedSlot - 1)
+            elif event.key == pygame.K_DOWN and self.selectedSlot is not None:
+                self.selectedSlot = min(31, self.selectedSlot + 1)
+            return
+        
+        # handling text input
+        if event.key == pygame.K_BACKSPACE:
+            self.editText = self.editText[:-1]
+            # self.saveSlotText() | <- REMOVED to fix message sent after every char update
+        elif event.key == pygame.K_RETURN:
+            # save current text to slot
+            self.saveSlotText()
+            self.editField = None
+            self.editText = ""
+        elif event.key == pygame.K_TAB:
+            # switch between ID and name field
+            self.saveSlotText()
+            self.editField = 'name' if self.editField == 'id' else 'id'
+            self.editText = ""
+        elif event.unicode and event.unicode.isprintable():
+            # adding character to editText (w limited length) 
+            max_len = 6 if self.editField == 'id' else 10
+            if len(self.editText) < max_len:
+                self.editText += event.unicode
+                # self.saveSlotText() | <- REMOVED to fix message sent after every char update
+        
+    def saveSlotText(self):
+        if self.selectedSlot is not None and self.selectedSlot < len(self.view.slots):
+            slot = self.view.slots[self.selectedSlot]
+            if self.editField == 'id':
+                slot.id = self.editText
+                if self.lastAddress:
+                    slot.device = self.lastAddress
+                    #self.devices.add(self.lastAddress)
+                self.broadcast(f"Equipment Code:{slot.id}")
+                INPUT_ID[slot.slot_index] = slot.id
+
+            elif self.editField == 'name':
+                slot.player_name = self.editText
+                self.broadcast(f"Player Name:{slot.player_name}")
+                INPUT_NAME[slot.slot_index] = slot.player_name
+            # Add player into to database if both slots are populated
+            # *** MAY ADD REDUNDANT ENTRIES UPON EDITING PLAYER DATA
+            if INPUT_ID[slot.slot_index] != "inID":
+                if INPUT_NAME[slot.slot_index] != "inName":
+                    add_player(INPUT_ID[slot.slot_index],INPUT_NAME[slot.slot_index])
+
+
+
+    # UDP Send/Broadcast Methods
+    #def sendData(self, message): #send to a device over udp
+    #    self.send_sock.sendto(message.encode(), (UDP_IP, UDP_PORT)) 
+    #    print("Sent", message)
+    def broadcast(self, message): #send to all devices in list
+        self.send_sock.sendto(message.encode(), (self.Send_UDP_IP, self.Target_port))
+        print(f"Broadcast '{message}' to {self.Send_UDP_IP}:{self.Target_port}")
