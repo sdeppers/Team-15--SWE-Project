@@ -147,6 +147,8 @@ class Controller():
             for slot in self.view.slots:
                 slot.id = ""
                 slot.player_name = ""
+        if event.key == pygame.K_F5:
+            self.current_screen = "action_display"
         if self.editField == 'ip':
             if event.key == pygame.K_RETURN:
                 self.ip_text = self.editText
