@@ -7,8 +7,8 @@ import socket
 
 from slot import Slot, ID_WIDTH
 
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 1000
+WINDOW_WIDTH = 750
+WINDOW_HEIGHT = 750
 
 SPLASH_DURATION_MS = 2500
 
@@ -50,9 +50,10 @@ class View():
     def update(self, screen_name, selectedSlot = None, editField = None, editText = "", ip_text = "", port_text = ""):
         BLACK_COLOR = (0, 0, 0)
         WHITE_COLOR = (255, 255, 255)
-        RED_COLOR = (150, 0, 0)
+        RED_COLOR = (255, 0, 0)
         GREEN_COLOR = (0, 255, 0)
         GREY_COLOR = (120, 120, 120)
+        BLUE_COLOR=(150, 150, 255)
 
         clock_timer = pygame.time.get_ticks()
 
@@ -129,3 +130,48 @@ class View():
 
             pygame.display.flip()
             return
+        elif screen_name == "action_display":
+            print("fish")
+            self.screen.fill([0, 0, 0])
+            font = pygame.font.SysFont(None, 42)
+            border = pygame.Rect(10, 10, 730, 730)
+            pygame.draw.rect(self.screen, BLUE_COLOR, border)
+            top_half = pygame.Rect(20, 20, 710, 710)
+            pygame.draw.rect(self.screen, BLACK_COLOR, top_half)
+            bottom_half = pygame.Rect(20, 325, 710, 405)
+            pygame.draw.rect(self.screen, GREY_COLOR, bottom_half)
+            scores_string = "Current Scores"
+            action_string = "Current Game Action"
+            text_surface = font.render(action_string, True, BLUE_COLOR)
+            self.screen.blit(text_surface, (400, 348))
+            text_surface = font.render(action_string, True, BLACK_COLOR)
+            self.screen.blit(text_surface, (398, 350))
+            text_surface = font.render(scores_string, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (260, 25))
+            text_surface = font.render(scores_string, True, BLUE_COLOR)
+            self.screen.blit(text_surface, (258, 27))
+
+            text_surface = font.render("RED TEAM", True, RED_COLOR)
+            self.screen.blit(text_surface, (30, 30))
+            text_surface = font.render("GREEN TEAM", True, GREEN_COLOR)
+            self.screen.blit(text_surface, (530, 30))
+
+            y_pos = 30
+            font = pygame.font.SysFont(None, 20)
+
+            for red in self.slots:
+                if red.slot_index < Slot.NUM_PER_SIDE:
+                    text_surface = font.render(red.player_name, True, RED_COLOR)
+                    self.screen.blit(text_surface, (30, y_pos))
+                    y_pos += 30
+
+            y_pos = 30
+            
+            for green in self.slots:
+                if green.slot_index > Slot.NUM_PER_SIDE:
+                    if green.slot_index < (2 * Slot.NUM_PER_SIDE):
+                        text_surface = font.render(red.player_name, True, RED_COLOR)
+                        self.screen.blit(text_surface, (530, y_pos))
+                        y_pos += 30
+
+            pygame.display.flip()
