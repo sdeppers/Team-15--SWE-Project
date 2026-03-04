@@ -23,6 +23,7 @@ class Slot:
         self.w = w if w is not None else Slot.DEFAULT_W
         self.h = h if h is not None else Slot.DEFAULT_H
         self.device = None
+        self.equipment = ""
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.w, self.h)

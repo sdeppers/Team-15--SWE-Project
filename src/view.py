@@ -82,10 +82,10 @@ class View():
             
             ip_display = editText if editField == 'ip' else ip_text
             port_display = editText if editField == 'port' else port_text
+            equipment_display = editText if editField == 'equip' else ""
             # rendering IP address box
             ip_box_rect = pygame.Rect(50, 30, 200, 30)
             pygame.draw.rect(self.screen, (80, 80, 200), ip_box_rect, 2)
-            
             ip_label = self.slot_font.render(f"IP: {ip_display}", True, WHITE_COLOR)
             self.screen.blit(ip_label, (60, 35))
 
@@ -94,6 +94,12 @@ class View():
             pygame.draw.rect(self.screen, (80, 80, 200), port_box_rect, 2)
             port_label = self.slot_font.render(f"Port: {port_display}", True, WHITE_COLOR)
             self.screen.blit(port_label, (310,35))
+
+            # rendering EQUIPMENT ID box
+            equip_box_rect = pygame.Rect(300, 100, 200, 30)
+            pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
+            equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, WHITE_COLOR)
+            self.screen.blit(equip_label, (310,105))
 
 
             team_label_y = SLOT_START_Y - 26
@@ -123,23 +129,3 @@ class View():
 
             pygame.display.flip()
             return
-
-        # view test code
-        # default main screen (grey box, red box, fishes text)
-        # self.screen.fill([0, 100, 150])
-        # font = pygame.font.SysFont(None, 72)
-        # grey_box = pygame.Rect(185, 10, 500, 800)
-        # pygame.draw.rect(self.screen, GREY_COLOR, grey_box)
-        # red_box = pygame.Rect(500, 600, 300, 300)
-        # pygame.draw.rect(self.screen, RED_COLOR, red_box)
-        # fish_string = "press q to exit"
-        # fishes_string = "F I S H E S"
-        # text_surface = font.render(fish_string, True, WHITE_COLOR)
-        # self.screen.blit(text_surface, (200, 410))
-        # text_surface = font.render(fish_string, True, BLACK_COLOR)
-        # self.screen.blit(text_surface, (198, 408))
-        # text_surface = font.render(fishes_string, True, WHITE_COLOR)
-        # self.screen.blit(text_surface, (500, 500))
-        # text_surface = font.render(fishes_string, True, BLACK_COLOR)
-        # self.screen.blit(text_surface, (498, 502))
-        # pygame.display.flip()
