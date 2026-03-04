@@ -131,7 +131,6 @@ class View():
             pygame.display.flip()
             return
         elif screen_name == "action_display":
-            print("fish")
             self.screen.fill([0, 0, 0])
             font = pygame.font.SysFont(None, 42)
             border = pygame.Rect(10, 10, 730, 730)
@@ -156,22 +155,27 @@ class View():
             text_surface = font.render("GREEN TEAM", True, GREEN_COLOR)
             self.screen.blit(text_surface, (530, 30))
 
-            y_pos = 30
-            font = pygame.font.SysFont(None, 20)
+            y_pos = 80
+            font = pygame.font.SysFont(None, 30)
 
             for red in self.slots:
                 if red.slot_index < Slot.NUM_PER_SIDE:
-                    text_surface = font.render(red.player_name, True, RED_COLOR)
-                    self.screen.blit(text_surface, (30, y_pos))
-                    y_pos += 30
+                    if red.player_name != "":
+                        text_surface = font.render(red.player_name, True, RED_COLOR)
+                        self.screen.blit(text_surface, (30, y_pos))
+                        text_surface = font.render(str(red.score), True, RED_COLOR)
+                        self.screen.blit(text_surface, (150, y_pos))
+                        y_pos += 30
 
-            y_pos = 30
+            y_pos = 80
             
             for green in self.slots:
-                if green.slot_index > Slot.NUM_PER_SIDE:
-                    if green.slot_index < (2 * Slot.NUM_PER_SIDE):
-                        text_surface = font.render(red.player_name, True, RED_COLOR)
+                if green.slot_index >= Slot.NUM_PER_SIDE:
+                    if green.player_name != "":
+                        text_surface = font.render(green.player_name, True, GREEN_COLOR)
                         self.screen.blit(text_surface, (530, y_pos))
+                        text_surface = font.render(str(green.score), True, GREEN_COLOR)
+                        self.screen.blit(text_surface, (650, y_pos))
                         y_pos += 30
 
             pygame.display.flip()
