@@ -8,6 +8,7 @@ import socket
 from slot import Slot, ID_WIDTH
 from python_pg import add_player
 from python_pg import id_exists
+from python_pg import delete_database
 from view import View
 
 SPLASH_DURATION_MS = 2500
@@ -20,6 +21,7 @@ INPUT_NAME = ["inName"] * Slot.TOTAL_SLOTS
 class Controller():
     def __init__(self, view):
         self.ADDING_NEW_PLAYER = False
+        self.NEEDS_EQUIPMENT_ID = False
         self.view = view
         self.keep_going = True
         self.current_screen = "splash"
@@ -137,7 +139,14 @@ class Controller():
             
 
     def handleKeyInput(self, event):
-
+        # If F12 is pressed at ANY time, all records in DB are deleted,
+        # and slot.id and slot.player_name is set to ""
+        # SATISFIES REQUIREMENT *f12...*
+        if event.key == pygame.K_F12:
+            delete_database()
+            for slot in self.view.slots:
+                slot.id = ""
+                slot.player_name = ""
         if self.editField == 'ip':
             if event.key == pygame.K_RETURN:
                 self.ip_text = self.editText
@@ -183,10 +192,15 @@ class Controller():
             self.editText = ""
             self.editField = None
             # Condition is true when there is no record for a given player ID
+            # Only AFTER an equipment ID is assigned to the player ID.
             # SATISFIES REQUIREMENT *allow for the entry for...
-            if self.ADDING_NEW_PLAYER:
+            if self.NEEDS_EQUIPMENT_ID:
+                self.editField = 'equip'
+                self.NEEDS_EQUIPMENT_ID = False
+            elif self.ADDING_NEW_PLAYER:
                 self.editField = 'name'
                 self.ADDING_NEW_PLAYER = False
+            
         elif event.key == pygame.K_TAB:
             # switch between ID and name field
             self.saveSlotText()
@@ -219,11 +233,21 @@ class Controller():
                     print("Please input new player code name, and press ENTER.")
                     self.ADDING_NEW_PLAYER = True
                     
+                self.NEEDS_EQUIPMENT_ID = True
+
+                    
 
             elif self.editField == 'name':
                 slot.player_name = self.editText
-                self.broadcast(f"Player Name:{slot.player_name}")
+                #self.broadcast(f"Player Name:{slot.player_name}")
                 INPUT_NAME[slot.slot_index] = slot.player_name
+            elif self.editField == 'equip':
+                if self.editText.isdigit():
+                    slot.equipment = self.editText
+                    self.broadcast(f"Equipment ID : {slot.equipment}")
+                else:
+                    print("ERROR. Equipment ID must be an integer.\nTry again.")
+                    self.NEEDS_EQUIPMENT_ID = True
             # Add player into to database if both slots are populated
             # *** MAY ADD REDUNDANT ENTRIES UPON EDITING PLAYER DATA
             if INPUT_ID[slot.slot_index] != "inID":
