@@ -7,6 +7,7 @@ import socket
 
 from slot import Slot, ID_WIDTH
 from python_pg import add_player
+from python_pg import id_exists
 from view import View
 
 SPLASH_DURATION_MS = 2500
@@ -18,6 +19,7 @@ INPUT_NAME = ["inName"] * Slot.TOTAL_SLOTS
 
 class Controller():
     def __init__(self, view):
+        self.ADDING_NEW_PLAYER = False
         self.view = view
         self.keep_going = True
         self.current_screen = "splash"
@@ -32,8 +34,8 @@ class Controller():
 
         #UDP
         self.Send_UDP_IP = "127.0.0.1"  
-        self.Receive_UDP_PORT = 5005
-        self.Target_port = 5005
+        self.Receive_UDP_PORT = 7500
+        self.Target_port = 7500
         self.bufferSize = 1024
 
         self.recv_sock =socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
@@ -178,8 +180,13 @@ class Controller():
         elif event.key == pygame.K_RETURN:
             # save current text to slot
             self.saveSlotText()
-            self.editField = None
             self.editText = ""
+            self.editField = None
+            # Condition is true when there is no record for a given player ID
+            # SATISFIES REQUIREMENT *allow for the entry for...
+            if self.ADDING_NEW_PLAYER:
+                self.editField = 'name'
+                self.ADDING_NEW_PLAYER = False
         elif event.key == pygame.K_TAB:
             # switch between ID and name field
             self.saveSlotText()
@@ -200,8 +207,18 @@ class Controller():
                 if self.lastAddress:
                     slot.device = self.lastAddress
                     #self.devices.add(self.lastAddress)
-                self.broadcast(f"Equipment Code:{slot.id}")
+                #self.broadcast(f"Equipment Code:{slot.id}")
                 INPUT_ID[slot.slot_index] = slot.id
+                # If a player record for a given player ID exists,
+                # populate that slots' codename from the database
+                existing_name = id_exists(slot.id)
+                if existing_name != '':
+                    INPUT_NAME[slot.slot_index] = existing_name
+                    slot.player_name = existing_name
+                else:
+                    print("Please input new player code name, and press ENTER.")
+                    self.ADDING_NEW_PLAYER = True
+                    
 
             elif self.editField == 'name':
                 slot.player_name = self.editText
