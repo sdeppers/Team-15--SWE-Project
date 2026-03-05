@@ -27,6 +27,9 @@ class View():
         self.screen = pygame.display.set_mode(SCREEN_SIZE, 32)
         self.slots = None
         self.slot_font = None
+        self.clock_start = False
+        self.countdown_index = 30
+        self.start_time = 0
 
     def load_image(self, image_path):
         image_to_load = pygame.image.load(image_path)
@@ -131,6 +134,11 @@ class View():
             pygame.display.flip()
             return
         elif screen_name == "action_display":
+            # Store time of entering action display
+            if not self.clock_start:
+                self.start_time = clock_timer
+                self.clock_start = True
+            # Draw boxes
             self.screen.fill([0, 0, 0])
             font = pygame.font.SysFont(None, 42)
             border = pygame.Rect(10, 10, 730, 730)
@@ -139,6 +147,7 @@ class View():
             pygame.draw.rect(self.screen, BLACK_COLOR, top_half)
             bottom_half = pygame.Rect(20, 325, 710, 405)
             pygame.draw.rect(self.screen, GREY_COLOR, bottom_half)
+            # Draw labels
             scores_string = "Current Scores"
             action_string = "Current Game Action"
             text_surface = font.render(action_string, True, BLUE_COLOR)
@@ -149,15 +158,16 @@ class View():
             self.screen.blit(text_surface, (260, 25))
             text_surface = font.render(scores_string, True, BLUE_COLOR)
             self.screen.blit(text_surface, (258, 27))
-
+            # Team labels
             text_surface = font.render("RED TEAM", True, RED_COLOR)
             self.screen.blit(text_surface, (30, 30))
             text_surface = font.render("GREEN TEAM", True, GREEN_COLOR)
             self.screen.blit(text_surface, (530, 30))
-
+            # Y position of first codename in each list
             y_pos = 80
             font = pygame.font.SysFont(None, 30)
-
+            # Print each codename and score for every
+            # Player on red team.
             for red in self.slots:
                 if red.slot_index < Slot.NUM_PER_SIDE:
                     if red.player_name != "":
@@ -166,7 +176,7 @@ class View():
                         text_surface = font.render(str(red.score), True, RED_COLOR)
                         self.screen.blit(text_surface, (150, y_pos))
                         y_pos += 30
-
+            # Reset y-pos to print green team.
             y_pos = 80
             
             for green in self.slots:
@@ -177,5 +187,17 @@ class View():
                         text_surface = font.render(str(green.score), True, GREEN_COLOR)
                         self.screen.blit(text_surface, (650, y_pos))
                         y_pos += 30
+            # Print countdown image
+            if self.start_time < (clock_timer - 1000):
+                if self.countdown_index > 0:
+                    self.countdown_index -= 1
+                    self.start_time = clock_timer
+            countdown = "../assets/gui/countdown_images/"
+            countdown += str(self.countdown_index) + ".tif"
+            splash_art = pygame.image.load(countdown)
+            new_size = (200, 200)
+            scaled_splash_art = pygame.transform.scale(splash_art, new_size)
+            self.screen.blit(scaled_splash_art, (500, 500))
+
 
             pygame.display.flip()
