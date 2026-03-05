@@ -8,7 +8,7 @@ import socket
 from slot import Slot, ID_WIDTH
 from python_pg import add_player
 from python_pg import id_exists
-from python_pg import delete_database
+#from python_pg import delete_database
 from view import View
 
 SPLASH_DURATION_MS = 2500
@@ -93,8 +93,10 @@ class Controller():
             return
 
         # Added to ensure text entries are saved if user clicks into another box while still editing current box
-        if self.selectedSlot is not None and self.editField in ['id', 'name']:
-            self.saveSlotText()
+        # REMOVED FEATURE. Potential to cause lots of problems with
+        # id_exists function. -Spence
+        # if self.selectedSlot is not None and self.editField in ['id', 'name']:
+        #     self.saveSlotText()
 
         x, y = pos
 
@@ -143,7 +145,7 @@ class Controller():
         # and slot.id and slot.player_name is set to ""
         # SATISFIES REQUIREMENT *f12...*
         if event.key == pygame.K_F12:
-            delete_database()
+            #delete_database()
             for slot in self.view.slots:
                 slot.id = ""
                 slot.player_name = ""
@@ -193,12 +195,14 @@ class Controller():
             self.saveSlotText()
             self.editText = ""
             self.editField = None
-            # Condition is true when there is no record for a given player ID
-            # Only AFTER an equipment ID is assigned to the player ID.
-            # SATISFIES REQUIREMENT *allow for the entry for...
+            # SATISFIES REQUIREMENT *prompt for the equipment...
+            # See editField == 'equip' block for more details
             if self.NEEDS_EQUIPMENT_ID:
                 self.editField = 'equip'
                 self.NEEDS_EQUIPMENT_ID = False
+            # ADD_NEW... is true when there is no record for a given player ID
+            # Only enters block AFTER an equipment ID is assigned to the player ID.
+            # SATISFIES REQUIREMENT *allow for the entry for...
             elif self.ADDING_NEW_PLAYER:
                 self.editField = 'name'
                 self.ADDING_NEW_PLAYER = False
@@ -227,31 +231,38 @@ class Controller():
                 INPUT_ID[slot.slot_index] = slot.id
                 # If a player record for a given player ID exists,
                 # populate that slots' codename from the database
+                # ELSE, set ADDING_NEW_PLAYER to true
                 existing_name = id_exists(slot.id)
+                print("\nPlease input equipment ID, and press ENTER.")
                 if existing_name != '':
                     INPUT_NAME[slot.slot_index] = existing_name
                     slot.player_name = existing_name
                 else:
-                    print("Please input new player code name, and press ENTER.")
+                    print("Then, input new player codename, and press ENTER.")
                     self.ADDING_NEW_PLAYER = True
-                    
+                # Equipment id is ALWAYS selected immediately after user
+                # stores a player ID.
+                # Equipment ID will be selected prior to the codename slot.
+                # See final 'K_RETURN' block for more details.
                 self.NEEDS_EQUIPMENT_ID = True
-
-                    
 
             elif self.editField == 'name':
                 slot.player_name = self.editText
                 #self.broadcast(f"Player Name:{slot.player_name}")
                 INPUT_NAME[slot.slot_index] = slot.player_name
+            # Only stores equipment ID if editText can be cast to an integer
+            # Otherwise, NEEDS_EQUIPMENT_ID is set back to True, and program
+            # remains in 'equip' state.
             elif self.editField == 'equip':
                 if self.editText.isdigit():
                     slot.equipment = self.editText
                     self.broadcast(f"Equipment ID : {slot.equipment}")
                 else:
-                    print("ERROR. Equipment ID must be an integer.\nTry again.")
+                    print("\nERROR. Equipment ID must be an integer.\nTry again.")
                     self.NEEDS_EQUIPMENT_ID = True
-            # Add player into to database if both slots are populated
-            # *** MAY ADD REDUNDANT ENTRIES UPON EDITING PLAYER DATA
+            # Add player into to database if both slots are populated.
+            # Error checking for preventing duplicate entries can be found in the
+            # add_player function, and the id_exist function that is called prior
             if INPUT_ID[slot.slot_index] != "inID":
                 if INPUT_NAME[slot.slot_index] != "inName":
                     add_player(INPUT_ID[slot.slot_index],INPUT_NAME[slot.slot_index])
@@ -264,4 +275,4 @@ class Controller():
     #    print("Sent", message)
     def broadcast(self, message): #send to all devices in list
         self.send_sock.sendto(message.encode(), (self.Send_UDP_IP, self.Target_port))
-        print(f"Broadcast '{message}' to {self.Send_UDP_IP}:{self.Target_port}")
+        print(f"\nBroadcast '{message}' to {self.Send_UDP_IP}:{self.Target_port}")

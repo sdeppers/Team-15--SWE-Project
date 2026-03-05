@@ -18,27 +18,11 @@ def add_player(player_id, codename):
         # Connect to PostgreSQL
         conn = psycopg2.connect(**connection_params)
         cursor = conn.cursor()
-
-        # # Execute a query
-        # cursor.execute("SELECT version();")
-
-        # # Fetch and display the result
-        # version = cursor.fetchone()
-        # print(f"Connected to - {version}")
-
-        # Example: creating a table
-        #cursor.execute('''
-        #    CREATE TABLE IF NOT EXISTS employees (
-        #        id SERIAL PRIMARY KEY,
-        #        name VARCHAR(100),
-        #        department VARCHAR(50),
-        #        salary DECIMAL
-        #    );
-        #''')
+        # Execute query and retrieve the first element from it
         query="SELECT codename FROM players WHERE id = " + player_id
         cursor.execute(query)
         existing_id=cursor.fetchone()
-
+        # If the query result is empty, add (id, codename) to DB
         if not existing_id:
             cursor.execute('''
                 INSERT INTO players (id, codename)
@@ -57,9 +41,10 @@ def add_player(player_id, codename):
             cursor.close()
         if conn is not None:
             conn.close()
-
+# For given player_id, searches DB for record where id = player_id
+# If one exists, return the CODENAME for that record
+# Otherwise, return ''
 def id_exists(player_id):
-# Define connection parameters
     connection_params = {
         'dbname': 'photon',
         'user': 'student',
@@ -67,16 +52,17 @@ def id_exists(player_id):
 
     conn = None
     cursor = None
-    # Prevents crash if user bails out of the try block
+    # Prevents crash if user bails out of the try block (using mouseClicked)
     output = ''
 
     try:
         conn = psycopg2.connect(**connection_params)
         cursor = conn.cursor()
-
+        # Retrieve codename for record where id = player_id (should be only 1)
         query="SELECT codename FROM players WHERE id = " + player_id
         cursor.execute(query)
         existing_codename=cursor.fetchone()
+        # If there is an existing codename, join it to output, and return output
         if existing_codename:
             output = ''.join(existing_codename)
 
@@ -88,9 +74,9 @@ def id_exists(player_id):
             cursor.close()
         if conn is not None:
             conn.close()
-
+    # Return either '' or codename in same record as id = player_id
     return output
-
+# Not in use
 def delete_database():
     connection_params = {
         'dbname': 'photon',

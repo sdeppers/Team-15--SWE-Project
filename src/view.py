@@ -102,7 +102,11 @@ class View():
             # rendering EQUIPMENT ID box
             equip_box_rect = pygame.Rect(300, 100, 200, 30)
             pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
-            equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, WHITE_COLOR)
+            # Equipment ID text is RED while it's taking user input
+            if editField == 'equip':
+                equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, RED_COLOR)
+            else:
+                equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, WHITE_COLOR)
             self.screen.blit(equip_label, (310,105))
 
 
@@ -178,7 +182,7 @@ class View():
                         y_pos += 30
             # Reset y-pos to print green team.
             y_pos = 80
-            
+            # Print green team
             for green in self.slots:
                 if green.slot_index >= Slot.NUM_PER_SIDE:
                     if green.player_name != "":
@@ -187,17 +191,17 @@ class View():
                         text_surface = font.render(str(green.score), True, GREEN_COLOR)
                         self.screen.blit(text_surface, (650, y_pos))
                         y_pos += 30
-            # Print countdown image
+            # Decrement countdown_index once every second
             if self.start_time < (clock_timer - 1000):
                 if self.countdown_index > 0:
                     self.countdown_index -= 1
                     self.start_time = clock_timer
+            # Print countdown image
             countdown = "../assets/gui/countdown_images/"
             countdown += str(self.countdown_index) + ".tif"
             splash_art = pygame.image.load(countdown)
             new_size = (200, 200)
             scaled_splash_art = pygame.transform.scale(splash_art, new_size)
             self.screen.blit(scaled_splash_art, (500, 500))
-
 
             pygame.display.flip()
