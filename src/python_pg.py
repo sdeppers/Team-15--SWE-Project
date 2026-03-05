@@ -67,6 +67,9 @@ def id_exists(player_id):
 
     conn = None
     cursor = None
+    # Prevents crash if user bails out of the try block
+    output = ''
+
     try:
         conn = psycopg2.connect(**connection_params)
         cursor = conn.cursor()
@@ -74,11 +77,8 @@ def id_exists(player_id):
         query="SELECT codename FROM players WHERE id = " + player_id
         cursor.execute(query)
         existing_codename=cursor.fetchone()
-
         if existing_codename:
             output = ''.join(existing_codename)
-        else:
-            output = ''
 
     except Exception as error:
         print(f"Error connecting to PostgreSQL database: {error}")
