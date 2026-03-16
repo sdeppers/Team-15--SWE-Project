@@ -1,22 +1,59 @@
-import pygame
-import time
-import json
-import math
-import random
-import socket
+# -------------------------------------------------------------
+# Controller.py
+#
+# This file contains the Controller class, which manages the
+# main program logic for the laser tag player entry system.
+#
+# Responsibilities of this file:
+# - Handle keyboard and mouse input
+# - Manage the current screen (splash, player entry, etc.)
+# - Update player slot information
+# - Communicate with equipment via UDP networking
+# - Store player data in the database
+#
+# The Controller communicates with:
+# - View (UI display)
+# - Slot objects (player slots)
+# - python_pg (database functions)
+#
+# The program uses pygame for UI and socket for networking.
+# -------------------------------------------------------------
 
-from slot import Slot, ID_WIDTH
-from python_pg import add_player
-from python_pg import id_exists
+
+import pygame   # Used for graphics, keyboard input, and mouse input
+#import time     # Provides time functions (not heavily used here)
+#import json     # Used for JSON data formatting (not currently used)
+#import math     # Mathematical functions (not currently used)
+#import random   # Random number generation (not currently used)
+import socket   # Used for UDP networking between devices
+
+from slot import Slot, ID_WIDTH     # Slot represents a player entry slot in the UI
+from python_pg import add_player    # Adds a player record to the PostgreSQL database
+from python_pg import id_exists     # Checks if a player ID already exists in the database
 #from python_pg import delete_database
-from view import View
+from view import View               # View handles drawing the UI to the screen
 
+# Amount of time the splash screen stays visible (milliseconds)
 SPLASH_DURATION_MS = 2500
 
-# Arrays of size 32, storing all player names and ID's
-# Defaults are inID and inName
+# -------------------------------------------------------------
+# INPUT_ID and INPUT_NAME store player data for each slot.
+#
+# There are 32 player slots in the system.
+# Each slot stores:
+#   - player ID
+#   - player codename
+#
+# These arrays act as temporary storage before writing
+# player data to the database.
+#
+# Default values:
+#   "inID"   -> slot does not yet contain a player ID
+#   "inName" -> slot does not yet contain a player name
+# -------------------------------------------------------------
 INPUT_ID = ["inID"] * Slot.TOTAL_SLOTS
 INPUT_NAME = ["inName"] * Slot.TOTAL_SLOTS
+
 
 class Controller():
     def __init__(self, view):
@@ -24,19 +61,30 @@ class Controller():
         self.NEEDS_EQUIPMENT_ID = False
         self.view = view
         self.keep_going = True
-        self.current_screen = "splash"
-        #self.devices = set() # list of devices to brodcast to with (ip, port)
-        #self.devices.add((UDP_IP, UDP_PORT))
+        self.current_screen = "splash"  # Possible values: splash, player_entry, action_display
+        #self.devices = set() # list of devices to broadcast to with (ip, port)
+        #self.devices.add((UDP_IP, UDP_PORT)) # Device tracking was originally planned but not used in the final version
         pygame.key.set_repeat()
 
         # vars to track selected slot
         self.selectedSlot = None
         self.editField = None # either ID or name
         self.editText = ""
+        self.lastAddress = None #to prevent attempting to access while no attribute
 
-        #UDP
+        # -------------------------------------------------------------
+        # UDP Networking Configuration
+        #
+        #UDP is used to send and receive messages between the
+        # player entry system and the laser tag equipment.
+        #
+        # Send_UDP_IP  -> IP address messages are sent to
+        # Receive_UDP_PORT -> Port used to listen for incoming messages
+        # Target_port -> Port used when sending UDP messages to equipment
+        # bufferSize -> Maximum size of received message
+        # -------------------------------------------------------------
         self.Send_UDP_IP = "127.0.0.1"  
-        self.Receive_UDP_PORT = 7500
+        self.Receive_UDP_PORT = 7501
         self.Target_port = 7500
         self.bufferSize = 1024
 
@@ -53,6 +101,17 @@ class Controller():
         self.ip_text = self.Send_UDP_IP
         self.port_text = str(self.Target_port)
 
+    # -------------------------------------------------------------
+    # update()
+    #
+    # This function runs once per frame.
+    #
+    # Responsibilities:
+    # - Check if splash screen should transition
+    # - Handle keyboard events
+    # - Handle mouse clicks
+    # - Listen for UDP messages from equipment
+    # -------------------------------------------------------------
     def update(self):
         # after splash time is up, switch to player entry
         if self.current_screen == "splash" and pygame.time.get_ticks() > SPLASH_DURATION_MS:
@@ -84,9 +143,15 @@ class Controller():
 
             pass
 
-    # ---------------------------------
-    # Mouse and Keyboard Event Handlers
-    # ---------------------------------
+    # -------------------------------------------------------------
+    # handleMouseClick()
+    #
+    # Determines what UI element the user clicked on:
+    # - IP address input box
+    # - Port input box
+    # - Player slot ID field
+    # - Player slot name field
+    # -------------------------------------------------------------
     
     def handleMouseClick(self, pos):
         if self.view.slots is None:
@@ -139,7 +204,22 @@ class Controller():
             self.editField = None
             self.editText = ""
             
+    # -------------------------------------------------------------
+    # handleKeyInput()
+    #
+    # Processes all keyboard input including:
+    # - Editing player IDs
+    # - Editing player names
+    # - Entering equipment IDs
+    # - Switching fields using TAB
+    # - Starting the action display screen
+    # -------------------------------------------------------------
 
+    #F12 -> Clears all player slots
+    #F5  -> Switches to action display screen    
+    #TAB -> Switch between ID and name fields
+    #ENTER -> Save entered text
+    #BACKSPACE -> Delete last character
     def handleKeyInput(self, event):
         # If F12 is pressed at ANY time, all records in DB are deleted,
         # and slot.id and slot.player_name is set to ""
@@ -183,7 +263,7 @@ class Controller():
             if event.key == pygame.K_UP and self.selectedSlot is not None:
                 self.selectedSlot = max(0, self.selectedSlot - 1)
             elif event.key == pygame.K_DOWN and self.selectedSlot is not None:
-                self.selectedSlot = min(31, self.selectedSlot + 1)
+                self.selectedSlot = min(Slot.TOTAL_SLOTS, self.selectedSlot + 1)
             return
         
         # handling text input
@@ -218,7 +298,19 @@ class Controller():
             if len(self.editText) < max_len:
                 self.editText += event.unicode
                 # self.saveSlotText() | <- REMOVED to fix message sent after every char update
-        
+
+    # -------------------------------------------------------------
+    # saveSlotText()
+    #
+    # Saves the text currently being edited into the selected slot.
+    #
+    # Depending on the field being edited, this function may:
+    # - Store the player ID
+    # - Store the player name
+    # - Store equipment ID
+    # - Check the database for existing player records
+    # - Add new players to the database
+    # -------------------------------------------------------------    
     def saveSlotText(self):
         if self.selectedSlot is not None and self.selectedSlot < len(self.view.slots):
             slot = self.view.slots[self.selectedSlot]
