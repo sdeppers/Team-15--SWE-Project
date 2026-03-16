@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import sql
 
+#Adds a player to the database if their id is not already in the database
 def add_player(player_id, codename):
     # Define connection parameters
     connection_params = {
@@ -19,8 +20,9 @@ def add_player(player_id, codename):
         connection = psycopg2.connect(**connection_params)
         cursor = connection.cursor()
         # Execute query and retrieve the first element from it
-        query="SELECT codename FROM players WHERE id = " + player_id
-        cursor.execute(query)
+        #query="SELECT codename FROM players WHERE id = " + player_id
+        #cursor.execute(query)
+        cursor.execute("SELECT codename FROM players WHERE id = %s", (player_id,))
         existing_id=cursor.fetchone()
         # If the query result is empty, add (id, codename) to DB
         if not existing_id:
@@ -60,8 +62,9 @@ def id_exists(player_id):
         connection = psycopg2.connect(**connection_params)
         cursor = connection.cursor()
         # Retrieve codename for record where id = player_id (should be only 1)
-        query="SELECT codename FROM players WHERE id = " + player_id
-        cursor.execute(query)
+        #query="SELECT codename FROM players WHERE id = " + player_id
+        #cursor.execute(query)
+        cursor.execute("SELECT codename FROM players WHERE id = %s", (player_id,))
         existing_codename=cursor.fetchone()
         # If there is an existing codename, join it to output, and return output
         if existing_codename:
@@ -79,6 +82,7 @@ def id_exists(player_id):
     return output
 
 # Not in use
+# Deletes all rows from the players table
 def delete_database():
     connection_params = {
         'dbname': 'photon',
