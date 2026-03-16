@@ -12,12 +12,12 @@ def add_player(player_id, codename):
     }
 
     # safe gaurd so no confusing errors if it never connects
-    conn = None
+    connection = None
     cursor = None
     try:
         # Connect to PostgreSQL
-        conn = psycopg2.connect(**connection_params)
-        cursor = conn.cursor()
+        connection = psycopg2.connect(**connection_params)
+        cursor = connection.cursor()
         # Execute query and retrieve the first element from it
         query="SELECT codename FROM players WHERE id = " + player_id
         cursor.execute(query)
@@ -30,7 +30,7 @@ def add_player(player_id, codename):
                 , (player_id, codename))
 
             # Commit the changes
-            conn.commit()
+            connection.commit()
 
     except Exception as error:
         print(f"Error connecting to PostgreSQL database: {error}")
@@ -39,8 +39,9 @@ def add_player(player_id, codename):
         # Close the cursor and connection
         if cursor is not None:
             cursor.close()
-        if conn is not None:
-            conn.close()
+        if connection is not None:
+            connection.close()
+
 # For given player_id, searches DB for record where id = player_id
 # If one exists, return the CODENAME for that record
 # Otherwise, return ''
@@ -50,14 +51,14 @@ def id_exists(player_id):
         'user': 'student',
     }
 
-    conn = None
+    connection = None
     cursor = None
     # Prevents crash if user bails out of the try block (using mouseClicked)
     output = ''
 
     try:
-        conn = psycopg2.connect(**connection_params)
-        cursor = conn.cursor()
+        connection = psycopg2.connect(**connection_params)
+        cursor = connection.cursor()
         # Retrieve codename for record where id = player_id (should be only 1)
         query="SELECT codename FROM players WHERE id = " + player_id
         cursor.execute(query)
@@ -72,10 +73,11 @@ def id_exists(player_id):
     finally:
         if cursor is not None:
             cursor.close()
-        if conn is not None:
-            conn.close()
+        if connection is not None:
+            connection.close()
     # Return either '' or codename in same record as id = player_id
     return output
+
 # Not in use
 def delete_database():
     connection_params = {
@@ -83,14 +85,14 @@ def delete_database():
         'user': 'student',
     }
 
-    conn = None
+    connection = None
     cursor = None
     try:
-        conn = psycopg2.connect(**connection_params)
-        cursor = conn.cursor()
+        connection = psycopg2.connect(**connection_params)
+        cursor = connection.cursor()
 
         cursor.execute("DELETE FROM players")
-        conn.commit()
+        connection.commit()
 
     except Exception as error:
         print(f"Error connecting to PostgreSQL database: {error}")
@@ -98,5 +100,5 @@ def delete_database():
     finally:
         if cursor is not None:
             cursor.close()
-        if conn is not None:
-            conn.close()
+        if connection is not None:
+            connection.close()
