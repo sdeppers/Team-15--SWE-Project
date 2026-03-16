@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import sql
 
+#Adds a player to the database if their id is not already in the database
 def add_player(player_id, codename):
     # Define connection parameters
     connection_params = {
@@ -79,6 +80,7 @@ def id_exists(player_id):
     # Return either '' or codename in same record as id = player_id
     return output
 # Not in use
+# Deletes all rows from the players table
 def delete_database():
     connection_params = {
         'dbname': 'photon',

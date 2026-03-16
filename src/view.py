@@ -35,6 +35,7 @@ class View():
         image_to_load = pygame.image.load(image_path)
 
     # build the list of 32 slots once (16 left, 16 right)
+    # Slot indices [0-15] are on the left, [16-31] on the right
     def _make_slots(self):
         if self.slots is not None:
             return
@@ -49,7 +50,7 @@ class View():
         for i in range(Slot.NUM_PER_SIDE):
             slot_y = SLOT_START_Y + i * (slot_h + SLOT_ROW_GAP)
             self.slots.append(Slot(Slot.NUM_PER_SIDE + i, "", "", right_x, slot_y, slot_w, slot_h))
-
+    # REnders one frame of the UI based on the current screen and any relevant info about selected slot or text being edited
     def update(self, screen_name, selectedSlot = None, editField = None, editText = "", ip_text = "", port_text = ""):
         BLACK_COLOR = (0, 0, 0)
         WHITE_COLOR = (255, 255, 255)
@@ -84,6 +85,7 @@ class View():
             
             green_label = self.slot_font.render("GREEN TEAM", True, (80, 200, 80))
             
+            # When editFIeld matches a box ('ip', 'port', or 'equip'), show editText instea of stored text
             ip_display = editText if editField == 'ip' else ip_text
             port_display = editText if editField == 'port' else port_text
             equipment_display = editText if editField == 'equip' else ""
