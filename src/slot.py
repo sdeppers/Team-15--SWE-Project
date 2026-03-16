@@ -1,6 +1,6 @@
 import pygame
 
-# slot is a horizontal bar: wide and short
+# Slot: horizontal bar (wide, short). Used by View for the player entry screen.
 DEFAULT_W = 180
 DEFAULT_H = 35
 ID_WIDTH = 36
