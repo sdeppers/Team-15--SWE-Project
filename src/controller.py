@@ -24,7 +24,7 @@ import pygame   # Used for graphics, keyboard input, and mouse input
 #import time     # Provides time functions (not heavily used here)
 #import json     # Used for JSON data formatting (not currently used)
 #import math     # Mathematical functions (not currently used)
-#import random   # Random number generation (not currently used)
+import random   # Random number generation (used in mp3 selection)
 import socket   # Used for UDP networking between devices
 
 from slot import Slot, ID_WIDTH     # Slot represents a player entry slot in the UI
@@ -71,6 +71,12 @@ class Controller():
         self.editField = None # either ID or name
         self.editText = ""
         self.lastAddress = None #to prevent attempting to access while no attribute
+        # After the .mp3 is selected, this becomes true
+        self.mp3_has_been_selected = False
+        # String for the filepath to the mp3 will be stored here
+        self.mp3_filepath = ""
+        # Hacky way of preventing the mp3 from continually restarting
+        self.mp3_playing = False
 
         # -------------------------------------------------------------
         # UDP Networking Configuration
@@ -113,18 +119,37 @@ class Controller():
     # - Listen for UDP messages from equipment
     # -------------------------------------------------------------
     def update(self):
+        # Sets mp3_filepath to one of the 8 available tracks
+        if not self.mp3_has_been_selected:
+            rand_int = random.randint(1, 8)
+            self.mp3_filepath = "../assets/photon_tracks/Track0" + str(rand_int) + ".mp3"
+            print(self.mp3_filepath) # Testing only
+            pygame.mixer.init()
+            self.mp3_has_been_selected = True
         # after splash time is up, switch to player entry
         if self.current_screen == "splash" and pygame.time.get_ticks() > SPLASH_DURATION_MS:
             self.current_screen = "player_entry"
+        # When action display is active, start the mp3 file and play through the end
+        if self.current_screen == "action_display":
+            if not self.mp3_playing:
+                print("Playing " + self.mp3_filepath) # For testing only
+                pygame.mixer.music.load(self.mp3_filepath)
+                pygame.mixer.music.play()
+                self.mp3_playing = True
+                # Disperse to exit instruction begins at start=380.0 in the mp3
+                # *IF THE TRACK NEEDS TO BE STOPPED AND RESTARTED AT 30 SECONDS, USE THE FOLLOWING:
+                # pygame.mixer.music.stop()
+                # pygame.mixer.music.play(start=30.0)
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_ESCAPE:
                     self.keep_going = False
                 elif self.current_screen == "player_entry":
                     self.handleKeyInput(event)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN: #?? This probably shouldn't always be checked
                 if self.current_screen == "player_entry":
                     self.handleMouseClick(event.pos)
+        
         
         try: #we're trying to read what's happening over udp
             bytesAddressPair = self.recv_sock.recvfrom(self.bufferSize)
