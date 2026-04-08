@@ -28,8 +28,13 @@ class View():
         self.slots = None
         self.slot_font = None
         self.clock_start = False
-        self.countdown_index = 30
+        self.countdown_index = 5 # For testing. Final version will have this set to 30
         self.start_time = 0
+        # Controller has access to these because it has it's own view variable
+        self.GAME_RUNNING = False
+        self.GAME_END = False
+        # 6 minute timer (in ms)
+        self.game_time_left = 360
 
     def load_image(self, image_path):
         image_to_load = pygame.image.load(image_path)
@@ -193,17 +198,37 @@ class View():
                         text_surface = font.render(str(green.score), True, GREEN_COLOR)
                         self.screen.blit(text_surface, (650, y_pos))
                         y_pos += 30
+            # After countdown reaches 0, GAME_RUNNING = True
+            if not self.GAME_RUNNING:
             # Decrement countdown_index once every second
-            if self.start_time < (clock_timer - 1000):
-                if self.countdown_index > 0:
-                    self.countdown_index -= 1
-                    self.start_time = clock_timer
-            # Print countdown image
-            countdown = "../assets/gui/countdown_images/"
-            countdown += str(self.countdown_index) + ".tif"
-            splash_art = pygame.image.load(countdown)
-            new_size = (200, 200)
-            scaled_splash_art = pygame.transform.scale(splash_art, new_size)
-            self.screen.blit(scaled_splash_art, (500, 500))
+                if self.start_time < (clock_timer - 1000):
+                    if self.countdown_index > 0:
+                        self.countdown_index -= 1
+                        self.start_time = clock_timer
+                    else:
+                        self.GAME_RUNNING = True
+                # Print countdown image
+                countdown = "../assets/gui/countdown_images/"
+                countdown += str(self.countdown_index) + ".tif"
+                splash_art = pygame.image.load(countdown)
+                new_size = (200, 200)
+                scaled_splash_art = pygame.transform.scale(splash_art, new_size)
+                self.screen.blit(scaled_splash_art, (500, 500))
+            # Gameplay block, only counts down game_time_left, convertes it to
+            # minutes and seconds, and prints it in the bottom right corner
+            else:
+                if self.start_time < (clock_timer - 1000):
+                    if self.game_time_left > 0:
+                        self.game_time_left -= 1
+                        self.start_time = clock_timer
+                    else:
+                        self.GAME_RUNNING = True
+                font = pygame.font.SysFont(None, 100)
+                minutes = math.floor(self.game_time_left / 60)
+                seconds = self.game_time_left - minutes * 60
+                text_surface = font.render(str(minutes)+":"+str(seconds), True, BLACK_COLOR)
+                self.screen.blit(text_surface, (582, 652))
+                text_surface = font.render(str(minutes)+":"+str(seconds), True, RED_COLOR)
+                self.screen.blit(text_surface, (580, 650))
 
             pygame.display.flip()
