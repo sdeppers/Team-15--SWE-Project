@@ -183,8 +183,9 @@ class Controller():
         
         try: #we're trying to read what's happening over udp
             bytesAddressPair = self.recv_sock.recvfrom(self.bufferSize)
-            message = bytesAddressPair[0]
-            address = bytesAddressPair[1]
+            # Decodes the 'bytes' type into a python string
+            message = bytesAddressPair[0].decode('utf-8')
+            address = bytesAddressPair[1].decode('utf-8')
 
             self.lastAddress = address # added to track last sender
 
@@ -204,6 +205,9 @@ class Controller():
                     if self.is_green(shooter):
                         shooter.score += 100
                         shooter.has_base = True
+                        # Both 'pop' methods pop the first string in their array if there is not
+                        # at least one empty string. Then, it appends an additional empty string
+                        # To store the 10th message in (allows for "scrolling text")
                         self.view.pop_first_green()
                         # Stores base hit message
                         first_empty = self.view.event_strings_green.index('')
