@@ -176,7 +176,7 @@ class View():
             self.screen.blit(text_surface, (530, 30))
             # Y position of first codename in each list
             y_pos = 80
-            font = pygame.font.SysFont(None, 30)
+            font = pygame.font.SysFont(None, 18)
             # Print each codename and score for every
             # Player on red team.
             for red in self.slots:
@@ -186,7 +186,7 @@ class View():
                         self.screen.blit(text_surface, (30, y_pos))
                         text_surface = font.render(str(red.score), True, RED_COLOR)
                         self.screen.blit(text_surface, (150, y_pos))
-                        y_pos += 30
+                        y_pos += 15
             # Reset y-pos to print green team.
             y_pos = 80
             # Print green team
@@ -197,7 +197,7 @@ class View():
                         self.screen.blit(text_surface, (530, y_pos))
                         text_surface = font.render(str(green.score), True, GREEN_COLOR)
                         self.screen.blit(text_surface, (650, y_pos))
-                        y_pos += 30
+                        y_pos += 15
             # After countdown reaches 0, GAME_RUNNING = True
             if not self.GAME_RUNNING:
             # Decrement countdown_index once every second
@@ -222,13 +222,15 @@ class View():
                         self.game_time_left -= 1
                         self.start_time = clock_timer
                     else:
-                        self.GAME_RUNNING = True
+                        self.GAME_RUNNING = False
+                        self.GAME_END = True
                 font = pygame.font.SysFont(None, 100)
                 minutes = math.floor(self.game_time_left / 60)
                 seconds = self.game_time_left - minutes * 60
-                text_surface = font.render(str(minutes)+":"+str(seconds), True, BLACK_COLOR)
+                time_text = f"{minutes}:{seconds:02d}"
+                text_surface = font.render(time_text, True, BLACK_COLOR)
                 self.screen.blit(text_surface, (582, 652))
-                text_surface = font.render(str(minutes)+":"+str(seconds), True, RED_COLOR)
+                text_surface = font.render(time_text, True, RED_COLOR)
                 self.screen.blit(text_surface, (580, 650))
 
             pygame.display.flip()
