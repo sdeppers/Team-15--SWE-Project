@@ -183,7 +183,8 @@ class Controller():
         
         try: #we're trying to read what's happening over udp
             bytesAddressPair = self.recv_sock.recvfrom(self.bufferSize)
-            message = bytesAddressPair[0]
+            # Decodes the 'bytes' type into a python string
+            message = bytesAddressPair[0].decode('utf-8')
             address = bytesAddressPair[1]
 
             self.lastAddress = address # added to track last sender
@@ -204,10 +205,23 @@ class Controller():
                     if self.is_green(shooter):
                         shooter.score += 100
                         shooter.has_base = True
+                        # Both 'pop' methods pop the first string in their array if there is not
+                        # at least one empty string. Then, it appends an additional empty string
+                        # To store the 10th message in (allows for "scrolling text")
+                        self.view.pop_first_green()
+                        # Stores base hit message
+                        first_empty = self.view.event_strings_green.index('')
+                        action_string = shooter.player_name + " hit the red base!"
+                        self.view.event_strings_green[first_empty] = action_string
                 elif target == "43": #green base
                     if self.is_red(shooter):
                         shooter.score += 100
                         shooter.has_base = True
+                        self.view.pop_first_red()
+                        # Stores base hit message
+                        first_empty = self.view.event_strings_red.index('')
+                        action_string = shooter.player_name + " hit the green base!"
+                        self.view.event_strings_red[first_empty] = action_string
                 elif shooter and target:
                     if self.is_opposing_team(shooter, target):
                         shooter.score += 10
@@ -215,6 +229,18 @@ class Controller():
                         shooter.score -= 10
                         target.score -= 10
                         self.broadcast(str(shooter_id)) #disable shooter like hit on friendly fire?
+                    if self.is_green(shooter):
+                        self.view.pop_first_green()
+                        # Stores (green) player hit target
+                        first_empty = self.view.event_strings_green.index('')
+                        action_string = shooter.player_name + " hit "+ target.player_name
+                        self.view.event_strings_green[first_empty] = action_string
+                    if self.is_red(shooter):
+                        self.view.pop_first_red()
+                        # Stores (red) player hit target
+                        first_empty = self.view.event_strings_red.index('')
+                        action_string = shooter.player_name + " hit "+ target.player_name
+                        self.view.event_strings_red[first_empty] = action_string
                     
                     # broadcast hit player
                     self.broadcast(str(hit_id))

@@ -28,13 +28,16 @@ class View():
         self.slots = None
         self.slot_font = None
         self.clock_start = False
-        self.countdown_index = 5 # For testing. Final version will have this set to 30
+        self.countdown_index = 16 # For testing. Final version will have this set to 30
         self.start_time = 0
         # Controller has access to these because it has it's own view variable
         self.GAME_RUNNING = False
         self.GAME_END = False
         # 6 minute timer (in ms)
         self.game_time_left = 360
+        # Holds at most strings describing the last 10 game events *for each team
+        self.event_strings_red = [''] * 10
+        self.event_strings_green = [''] * 10
 
     def load_image(self, image_path):
         image_to_load = pygame.image.load(image_path)
@@ -216,6 +219,7 @@ class View():
                 self.screen.blit(scaled_splash_art, (500, 500))
             # Gameplay block, only counts down game_time_left, convertes it to
             # minutes and seconds, and prints it in the bottom right corner
+            # The voice countdown is slower than 1 second, this should be mentioned.
             else:
                 if self.start_time < (clock_timer - 1000):
                     if self.game_time_left > 0:
@@ -230,5 +234,24 @@ class View():
                 self.screen.blit(text_surface, (582, 652))
                 text_surface = font.render(str(minutes)+":"+str(seconds), True, RED_COLOR)
                 self.screen.blit(text_surface, (580, 650))
+                # Print red events somewhere..
+                y_pos = 200
+                for event in self.event_strings_red:
+                    text_surface = font.render(event, True, RED_COLOR)
+                    self.screen.blit(text_surface, (30, y_pos))
+                    text_surface = font.render(str(red.score), True, RED_COLOR)
+                    self.screen.blit(text_surface, (150, y_pos))
+                    y_pos += 30
 
             pygame.display.flip()
+
+    def pop_first_red(self):
+        empty_count = self.event_strings_red.count('')
+        if empty_count == 0:
+            self.event_strings_red.pop(0)
+            self.event_strings_red.append('')
+    def pop_first_green(self):
+        empty_count = self.event_strings_green.count('')
+        if empty_count == 0:
+            self.event_strings_green.pop(0)
+            self.event_strings_green.append('')
