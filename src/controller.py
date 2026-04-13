@@ -204,10 +204,20 @@ class Controller():
                     if self.is_green(shooter):
                         shooter.score += 100
                         shooter.has_base = True
+                        self.view.pop_first_green()
+                        # Stores base hit message
+                        first_empty = self.view.event_strings_green.index('')
+                        action_string = shooter.player_name + " hit the red base!"
+                        self.event_strings_green[first_empty] = action_string
                 elif target == "43": #green base
                     if self.is_red(shooter):
                         shooter.score += 100
                         shooter.has_base = True
+                        self.view.pop_first_red()
+                        # Stores base hit message
+                        first_empty = self.view.event_strings_red.index('')
+                        action_string = shooter.player_name + " hit the green base!"
+                        self.event_strings_red[first_empty] = action_string
                 elif shooter and target:
                     if self.is_opposing_team(shooter, target):
                         shooter.score += 10
@@ -215,6 +225,18 @@ class Controller():
                         shooter.score -= 10
                         target.score -= 10
                         self.broadcast(str(shooter_id)) #disable shooter like hit on friendly fire?
+                    if self.is_green(shooter):
+                        self.view.pop_first_green()
+                        # Stores (green) player hit target
+                        first_empty = self.view.event_strings_green.index('')
+                        action_string = shooter.player_name + " hit "+ target.player_name
+                        self.event_strings_green[first_empty] = action_string
+                    if self.is_red(shooter):
+                        self.view.pop_first_red()
+                        # Stores (red) player hit target
+                        first_empty = self.view.event_strings_red.index('')
+                        action_string = shooter.player_name + " hit "+ target.player_name
+                        self.event_strings_red[first_empty] = action_string
                     
                     # broadcast hit player
                     self.broadcast(str(hit_id))
