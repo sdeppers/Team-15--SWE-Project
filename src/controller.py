@@ -78,6 +78,10 @@ class Controller():
         # Hacky way of preventing the mp3 from continually restarting
         self.mp3_playing = False
 
+        #for broadcasting to equipment
+        self.game_started = False
+        self.game_ended = False
+
         # -------------------------------------------------------------
         # UDP Networking Configuration
         #
@@ -106,6 +110,23 @@ class Controller():
         self.editing_port = False
         self.ip_text = self.Send_UDP_IP
         self.port_text = str(self.Target_port)
+    
+    #Helper function for UDP Handlers
+    def find_player_by_equipment(self, equipment_id):
+        for slot in self.view.slots:
+            if str(slot.equipment) == str(equipment_id):
+                return slot
+        return None
+
+    def is_red(self, slot):
+        return slot.slot_index < 16
+
+    def is_green(self, slot):
+        return slot.slot_index >= 16
+
+    def is_opposing_team(self, p1, p2):
+        return (self.is_red(p1) and self.is_green(p2)) or \
+            (self.is_green(p1) and self.is_red(p2))
 
     # -------------------------------------------------------------
     # update()
@@ -131,6 +152,15 @@ class Controller():
             self.current_screen = "player_entry"
         # When action display is active, start the mp3 file and play through the end
         if self.current_screen == "action_display":
+            if self.view.GAME_RUNNING and not self.game_started: #broadcast code to start game
+                self.broadcast("202")
+                self.game_started = True
+
+            if self.view.game_time_left <= 0 and not self.game_ended: # end the game when game ended
+                for _ in range(3):
+                    self.broadcast("221")
+                self.game_ended = True
+
             if not self.mp3_playing:
                 print("Playing " + self.mp3_filepath) # For testing only
                 pygame.mixer.music.load(self.mp3_filepath)
@@ -153,7 +183,8 @@ class Controller():
         
         try: #we're trying to read what's happening over udp
             bytesAddressPair = self.recv_sock.recvfrom(self.bufferSize)
-            message = bytesAddressPair[0]
+            # Decodes the 'bytes' type into a python string
+            message = bytesAddressPair[0].decode('utf-8')
             address = bytesAddressPair[1]
 
             self.lastAddress = address # added to track last sender
@@ -161,6 +192,58 @@ class Controller():
             clientMsg = "Message from Client{}".format(message)
             clientIP = "Client IP Address:{}".format(address)
             #self.devices.add(address) #adds devices recieved from if they are new
+
+            if ":" in message: #Handles normal hits
+                shooter_id, hit_id = message.split(":")
+                shooter_id = int(shooter_id)
+                hit_id = int(hit_id)
+
+                shooter = self.find_player_by_equipment(shooter_id)
+                target = self.find_player_by_equipment(hit_id)
+
+                if target == "53": #red base
+                    if self.is_green(shooter):
+                        shooter.score += 100
+                        shooter.has_base = True
+                        # Both 'pop' methods pop the first string in their array if there is not
+                        # at least one empty string. Then, it appends an additional empty string
+                        # To store the 10th message in (allows for "scrolling text")
+                        self.view.pop_first_green()
+                        # Stores base hit message
+                        first_empty = self.view.event_strings_green.index('')
+                        action_string = shooter.player_name + " hit the red base!"
+                        self.view.event_strings_green[first_empty] = action_string
+                elif target == "43": #green base
+                    if self.is_red(shooter):
+                        shooter.score += 100
+                        shooter.has_base = True
+                        self.view.pop_first_red()
+                        # Stores base hit message
+                        first_empty = self.view.event_strings_red.index('')
+                        action_string = shooter.player_name + " hit the green base!"
+                        self.view.event_strings_red[first_empty] = action_string
+                elif shooter and target:
+                    if self.is_opposing_team(shooter, target):
+                        shooter.score += 10
+                    else:
+                        shooter.score -= 10
+                        target.score -= 10
+                        self.broadcast(str(shooter_id)) #disable shooter like hit on friendly fire?
+                    if self.is_green(shooter):
+                        self.view.pop_first_green()
+                        # Stores (green) player hit target
+                        first_empty = self.view.event_strings_green.index('')
+                        action_string = shooter.player_name + " hit "+ target.player_name
+                        self.view.event_strings_green[first_empty] = action_string
+                    if self.is_red(shooter):
+                        self.view.pop_first_red()
+                        # Stores (red) player hit target
+                        first_empty = self.view.event_strings_red.index('')
+                        action_string = shooter.player_name + " hit "+ target.player_name
+                        self.view.event_strings_red[first_empty] = action_string
+                    
+                    # broadcast hit player
+                    self.broadcast(str(hit_id))
 
             print(clientMsg)
             print(clientIP)
@@ -255,6 +338,10 @@ class Controller():
                 slot.id = ""
                 slot.player_name = ""
         if event.key == pygame.K_F5:
+            #for udp broadcast
+            self.game_started = False
+            self.game_ended = False
+
             self.current_screen = "action_display"
         if self.editField == 'ip':
             if event.key == pygame.K_RETURN:
@@ -373,7 +460,8 @@ class Controller():
             elif self.editField == 'equip':
                 if self.editText.isdigit():
                     slot.equipment = self.editText
-                    self.broadcast(f"Equipment ID : {slot.equipment}")
+                    #self.broadcast(f"Equipment ID : {slot.equipment}")
+                    self.broadcast(str(slot.equipment))
                 else:
                     print("\nERROR. Equipment ID must be an integer.\nTry again.")
                     self.NEEDS_EQUIPMENT_ID = True
