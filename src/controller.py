@@ -185,7 +185,7 @@ class Controller():
             bytesAddressPair = self.recv_sock.recvfrom(self.bufferSize)
             # Decodes the 'bytes' type into a python string
             message = bytesAddressPair[0].decode('utf-8')
-            address = bytesAddressPair[1].decode('utf-8')
+            address = bytesAddressPair[1]
 
             self.lastAddress = address # added to track last sender
 
@@ -212,7 +212,7 @@ class Controller():
                         # Stores base hit message
                         first_empty = self.view.event_strings_green.index('')
                         action_string = shooter.player_name + " hit the red base!"
-                        self.event_strings_green[first_empty] = action_string
+                        self.view.event_strings_green[first_empty] = action_string
                 elif target == "43": #green base
                     if self.is_red(shooter):
                         shooter.score += 100
@@ -221,7 +221,7 @@ class Controller():
                         # Stores base hit message
                         first_empty = self.view.event_strings_red.index('')
                         action_string = shooter.player_name + " hit the green base!"
-                        self.event_strings_red[first_empty] = action_string
+                        self.view.event_strings_red[first_empty] = action_string
                 elif shooter and target:
                     if self.is_opposing_team(shooter, target):
                         shooter.score += 10
@@ -234,13 +234,13 @@ class Controller():
                         # Stores (green) player hit target
                         first_empty = self.view.event_strings_green.index('')
                         action_string = shooter.player_name + " hit "+ target.player_name
-                        self.event_strings_green[first_empty] = action_string
+                        self.view.event_strings_green[first_empty] = action_string
                     if self.is_red(shooter):
                         self.view.pop_first_red()
                         # Stores (red) player hit target
                         first_empty = self.view.event_strings_red.index('')
                         action_string = shooter.player_name + " hit "+ target.player_name
-                        self.event_strings_red[first_empty] = action_string
+                        self.view.event_strings_red[first_empty] = action_string
                     
                     # broadcast hit player
                     self.broadcast(str(hit_id))

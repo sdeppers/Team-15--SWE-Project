@@ -245,12 +245,12 @@ class View():
 
             pygame.display.flip()
 
-    def pop_first_red():
+    def pop_first_red(self):
         empty_count = self.event_strings_red.count('')
         if empty_count == 0:
             self.event_strings_red.pop(0)
             self.event_strings_red.append('')
-    def pop_first_green():
+    def pop_first_green(self):
         empty_count = self.event_strings_green.count('')
         if empty_count == 0:
             self.event_strings_green.pop(0)
