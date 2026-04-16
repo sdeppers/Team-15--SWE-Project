@@ -40,11 +40,17 @@ class Slot:
              selected = False, edit_field = None, edit_text = ""):
         
         rect = self.get_rect()
+        id_zone_rect = self.get_id_rect()
+        name_zone_rect = self.get_name_rect()
 
+        pygame.draw.rect(surface, bg_color, rect)
+
+        highlight_color = (100, 150, 200)
         if selected:
-            pygame.draw.rect(surface, (100, 150, 200), rect)
-        else:
-            pygame.draw.rect(surface, bg_color, rect)
+            if edit_field == 'id':
+                pygame.draw.rect(surface, highlight_color, id_zone_rect)
+            elif edit_field == 'name':
+                pygame.draw.rect(surface, highlight_color, name_zone_rect)
 
         # pygame.draw.rect(surface, bg_color, rect)
         pygame.draw.rect(surface, border_color, rect, 2 if selected else 1)

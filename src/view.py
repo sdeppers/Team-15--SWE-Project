@@ -114,8 +114,12 @@ class View():
             pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
             # Equipment ID text is RED while it's taking user input
             if editField == 'equip':
+                pygame.draw.rect(self.screen, (50, 70, 120), equip_box_rect)
+                pygame.draw.rect(self.screen, (150,200,255), equip_box_rect, 3)
                 equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, RED_COLOR)
             else:
+                pygame.draw.rect(self.screen, BLACK_COLOR, equip_box_rect)
+                pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
                 equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, WHITE_COLOR)
             self.screen.blit(equip_label, (310,105))
 
@@ -139,11 +143,12 @@ class View():
             self.screen.blit(name_label, (name_x_right, field_label_y))
 
             for one_slot in self.slots:
-                is_selected = one_slot.slot_index == selectedSlot
+                is_current_slot = one_slot.slot_index == selectedSlot
+                slot_field_active = is_current_slot and editField in ('id', 'name')
 
-                one_slot.draw(self.screen, self.slot_font, selected = is_selected,
-                                edit_field=editField if is_selected else None,
-                                edit_text=editText if is_selected else "")
+                one_slot.draw(self.screen, self.slot_font, selected = slot_field_active,
+                                edit_field=editField if slot_field_active else None,
+                                edit_text=editText if slot_field_active else "")
 
             pygame.display.flip()
             return
