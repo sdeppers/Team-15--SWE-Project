@@ -201,7 +201,7 @@ class Controller():
                 shooter = self.find_player_by_equipment(shooter_id)
                 target = self.find_player_by_equipment(hit_id)
 
-                if target == "53": #red base
+                if hit_id == 53: #red base
                     if self.is_green(shooter):
                         shooter.score += 100
                         shooter.has_base = True
@@ -213,7 +213,7 @@ class Controller():
                         first_empty = self.view.event_strings_green.index('')
                         action_string = shooter.player_name + " hit the red base!"
                         self.view.event_strings_green[first_empty] = action_string
-                elif target == "43": #green base
+                elif hit_id == 43: #green base
                     if self.is_red(shooter):
                         shooter.score += 100
                         shooter.has_base = True
@@ -242,8 +242,8 @@ class Controller():
                         action_string = shooter.player_name + " hit "+ target.player_name
                         self.view.event_strings_red[first_empty] = action_string
                     
-                    # broadcast hit player
-                    self.broadcast(str(hit_id))
+                # *broadcast hit ID (either player or base hit)
+                self.broadcast(str(hit_id))
 
             print(clientMsg)
             print(clientIP)
