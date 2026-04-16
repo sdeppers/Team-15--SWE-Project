@@ -165,9 +165,9 @@ class View():
             scores_string = "Current Scores"
             action_string = "Current Game Action"
             text_surface = font.render(action_string, True, BLUE_COLOR)
-            self.screen.blit(text_surface, (400, 348))
-            text_surface = font.render(action_string, True, BLACK_COLOR)
-            self.screen.blit(text_surface, (398, 350))
+            self.screen.blit(text_surface, (400, 388))
+            text_surface = font.render(action_string, True, BLACK_COLOR) 
+            self.screen.blit(text_surface, (398, 390))
             text_surface = font.render(scores_string, True, WHITE_COLOR)
             self.screen.blit(text_surface, (260, 25))
             text_surface = font.render(scores_string, True, BLUE_COLOR)
@@ -249,8 +249,10 @@ class View():
                 for event in self.event_strings_green:
                     if event != "":
                         text_surface = event_font.render(event, True, GREEN_COLOR)
-                        self.screen.blit(text_surface, (180, y_pos))
+                        self.screen.blit(text_surface, (400, y_pos))
                         y_pos += 24
+
+                        # cause we're effectively printing the same event twice just once in green and one in red?
 
 
                     # in order to display the green team's actions on the right hand side, i should duplicate this logic right?
