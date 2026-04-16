@@ -209,7 +209,7 @@ class View():
                         self.screen.blit(text_surface, (650, y_pos))
                         y_pos += 15
             # After countdown reaches 0, GAME_RUNNING = True
-            if not self.GAME_RUNNING:
+            if not self.GAME_RUNNING and not self.GAME_END:
             # Decrement countdown_index once every second
                 if self.start_time < (clock_timer - 1000):
                     if self.countdown_index > 0:
