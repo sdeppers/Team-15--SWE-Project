@@ -241,7 +241,7 @@ class View():
                         self.game_time_left = 0
                         self.GAME_RUNNING = False
                         self.GAME_END = True
-                font = pygame.font.SysFont(None, 100)
+                font = pygame.font.SysFont(None, 72)
 
                 if self.GAME_END:
                     game_over_shadow = font.render("GAME OVER", True, BLACK_COLOR)
