@@ -165,9 +165,9 @@ class View():
             scores_string = "Current Scores"
             action_string = "Current Game Action"
             text_surface = font.render(action_string, True, BLUE_COLOR)
-            self.screen.blit(text_surface, (400, 308))
+            self.screen.blit(text_surface, (400, 328))
             text_surface = font.render(action_string, True, BLACK_COLOR) 
-            self.screen.blit(text_surface, (398, 310))
+            self.screen.blit(text_surface, (398, 330))
             text_surface = font.render(scores_string, True, WHITE_COLOR)
             self.screen.blit(text_surface, (260, 25))
             text_surface = font.render(scores_string, True, BLUE_COLOR)
