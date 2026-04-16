@@ -177,7 +177,7 @@ class Controller():
                 elif self.current_screen == "player_entry":
                     self.handleKeyInput(event)
             elif event.type == pygame.MOUSEBUTTONDOWN: #?? This probably shouldn't always be checked
-                if self.current_screen == "player_entry":
+                if self.current_screen in ("player_entry", "action_display"):
                     self.handleMouseClick(event.pos)
         
         
@@ -262,6 +262,22 @@ class Controller():
     # -------------------------------------------------------------
     
     def handleMouseClick(self, pos):
+        # when clocking game over button, reset game state
+        if self.current_screen == "action_display":
+            if self.view.GAME_END and self.view.game_over_rect.collidepoint(pos):
+                self.current_screen = "player_entry"
+                self.view.clock_start = False
+                self.view.countdown_index = 16  # change this to 30 
+                self.view.start_time = 0
+                self.view.GAME_RUNNING = False
+                self.view.GAME_END = False
+                self.view.game_time_left = 360
+                self.view.event_strings_red = [''] * 10
+                self.view.event_strings_green = [''] * 10
+                self.game_started = False
+                self.game_ended = False
+                return
+            
         if self.view.slots is None:
             return
 
