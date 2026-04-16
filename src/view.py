@@ -114,12 +114,8 @@ class View():
             pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
             # Equipment ID text is RED while it's taking user input
             if editField == 'equip':
-                pygame.draw.rect(self.screen, (50, 70, 120), equip_box_rect)
-                pygame.draw.rect(self.screen, (150,200,255), equip_box_rect, 3)
                 equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, RED_COLOR)
             else:
-                pygame.draw.rect(self.screen, BLACK_COLOR, equip_box_rect)
-                pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
                 equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, WHITE_COLOR)
             self.screen.blit(equip_label, (310,105))
 
@@ -143,12 +139,11 @@ class View():
             self.screen.blit(name_label, (name_x_right, field_label_y))
 
             for one_slot in self.slots:
-                is_current_slot = one_slot.slot_index == selectedSlot
-                slot_field_active = is_current_slot and editField in ('id', 'name')
+                is_selected = one_slot.slot_index == selectedSlot
 
-                one_slot.draw(self.screen, self.slot_font, selected = slot_field_active,
-                                edit_field=editField if slot_field_active else None,
-                                edit_text=editText if slot_field_active else "")
+                one_slot.draw(self.screen, self.slot_font, selected = is_selected,
+                                edit_field=editField if is_selected else None,
+                                edit_text=editText if is_selected else "")
 
             pygame.display.flip()
             return
@@ -242,13 +237,25 @@ class View():
                 text_surface = font.render(time_text, True, RED_COLOR)
                 self.screen.blit(text_surface, (580, 650))
                 # Print red events somewhere..
-                event_font = pygame.font.SysFont(None, 24)
-                y_pos = 360
+                y_pos = 200
                 for event in self.event_strings_red:
-                    if event != "":
-                        text_surface = event_font.render(event, True, RED_COLOR)
-                        self.screen.blit(text_surface, (30, y_pos))
-                        y_pos += 24
+                    text_surface = font.render(event, True, RED_COLOR)
+                    self.screen.blit(text_surface, (30, y_pos))
+                    text_surface = font.render(str(red.score), True, RED_COLOR)
+                    self.screen.blit(text_surface, (150, y_pos))
+                    y_pos += 30
+
+                y_pos = 200
+                for event in self.event_strings_green:
+                    text_surface = font.render(event, True, GREEN_COLOR)
+                    self.screen.blit(text_surface, (30, y_pos))
+                    text_surface = font.render(str(green.score), True, GREEN_COLOR)
+                    self.screen.blit(text_surface, (150, y_pos))
+                    y_pos += 30
+
+
+                    # in order to display the green team's actions on the right hand side, i should duplicate this logic right?
+                    # also how would I make it to where the red player/green player's text is red/green 
 
             pygame.display.flip()
 
