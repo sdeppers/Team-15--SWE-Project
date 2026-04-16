@@ -237,21 +237,20 @@ class View():
                 text_surface = font.render(time_text, True, RED_COLOR)
                 self.screen.blit(text_surface, (580, 650))
                 # Print red events somewhere..
-                y_pos = 200
+                event_font = pygame.font.SysFont(None, 24)
+                y_pos = 360
                 for event in self.event_strings_red:
-                    text_surface = font.render(event, True, RED_COLOR)
-                    self.screen.blit(text_surface, (30, y_pos))
-                    text_surface = font.render(str(red.score), True, RED_COLOR)
-                    self.screen.blit(text_surface, (150, y_pos))
-                    y_pos += 30
+                    if event != "":
+                        text_surface = event_font.render(event, True, RED_COLOR)
+                        self.screen.blit(text_surface, (30, y_pos))
+                        y_pos += 24
 
-                y_pos = 200
+                y_pos = 360
                 for event in self.event_strings_green:
-                    text_surface = font.render(event, True, GREEN_COLOR)
-                    self.screen.blit(text_surface, (30, y_pos))
-                    text_surface = font.render(str(green.score), True, GREEN_COLOR)
-                    self.screen.blit(text_surface, (150, y_pos))
-                    y_pos += 30
+                    if event != "":
+                        text_surface = event_font.render(event, True, GREEN_COLOR)
+                        self.screen.blit(text_surface, (180, y_pos))
+                        y_pos += 24
 
 
                     # in order to display the green team's actions on the right hand side, i should duplicate this logic right?
