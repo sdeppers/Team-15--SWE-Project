@@ -150,6 +150,100 @@ class View():
                 one_slot.draw(self.screen, self.slot_font, selected = is_selected,
                                 edit_field=editField if is_selected else None,
                                 edit_text=editText if is_selected else "")
+            # Huge block of text decribing the program's controls
+            font = pygame.font.SysFont(None, 18)
+            text1 = "1. Left-click on the player ID field to manipulate"
+            text2 = "the contents of that field using keyboard inputs,"
+            text3 = "and press ENTER to finalize changes."
+            text4 = "2. The EQUIPMENT ID field for that player will be"
+            text5 = "AUTOMATICALLY SELECTED. Input an INTEGER"
+            text6 = "and press ENTER."
+            text7 = "3. If a record exists with the same player ID,"
+            text8 = "it will automatically populate that field"
+            text9 = "from the database. Otherwise, the player ID field"
+            text10 = "will be AUTOMATICALLY SELECTED."
+            text11 = "Input a NAME and press ENTER."
+            text12 = "4. Left-click on the PORT/IP field to manipulate"
+            text13 = "the contents of that field using keyboard inputs,"
+            text14 = "and press ENTER to finalize changes."
+            text15 = "NOTE: An invalid PORT/IP will result in"
+            text16 = "termination of the program."
+            text17 = "5. Press F12 in this menu to erase player data."
+            text18 = "6. Press F5 in this menu to begin the game"
+            text19 = "(Enter the 'Action Play Screen')"
+            text20 = "7. Press ESC at any time to"
+            text21 = "terminate the program."
+
+            text_y_pos = 150
+            text_surface = font.render(text1, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text2, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text3, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_y_pos += 15
+            text_surface = font.render(text4, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text5, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text6, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text7, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_y_pos += 15
+            text_surface = font.render(text8, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text9, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text10, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text11, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_y_pos += 15
+            text_surface = font.render(text12, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text13, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text14, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text15, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text16, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_y_pos += 15
+            text_surface = font.render(text17, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_y_pos += 15
+            text_surface = font.render(text18, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text19, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_y_pos += 15
+            text_surface = font.render(text20, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text21, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
 
             pygame.display.flip()
             return
