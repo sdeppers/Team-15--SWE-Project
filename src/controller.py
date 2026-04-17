@@ -117,12 +117,12 @@ class Controller():
             if str(slot.equipment) == str(equipment_id):
                 return slot
         return None
-
+    # Magic numbers...
     def is_red(self, slot):
-        return slot.slot_index < 16
+        return slot.slot_index < 15
 
     def is_green(self, slot):
-        return slot.slot_index >= 16
+        return slot.slot_index >= 15
 
     def is_opposing_team(self, p1, p2):
         return (self.is_red(p1) and self.is_green(p2)) or \
@@ -204,7 +204,7 @@ class Controller():
                 if hit_id == 53: #red base
                     if self.is_green(shooter):
                         shooter.score += 100
-                        shooter.has_base = True
+                        shooter.has_hit_base = True
                         # Both 'pop' methods pop the first string in their array if there is not
                         # at least one empty string. Then, it appends an additional empty string
                         # To store the 10th message in (allows for "scrolling text")
@@ -216,7 +216,7 @@ class Controller():
                 elif hit_id == 43: #green base
                     if self.is_red(shooter):
                         shooter.score += 100
-                        shooter.has_base = True
+                        shooter.has_hit_base = True
                         self.view.pop_first_red()
                         # Stores base hit message
                         first_empty = self.view.event_strings_red.index('')

@@ -36,8 +36,8 @@ class View():
         # 6 minute timer (in ms)
         self.game_time_left = 360
         # Holds at most strings describing the last 10 game events *for each team
-        self.event_strings_red = [''] * 10
-        self.event_strings_green = [''] * 10
+        self.event_strings_red = [''] * 15
+        self.event_strings_green = [''] * 15
 
         self.game_over_rect = pygame.Rect(25,600,170,45)
 
@@ -189,9 +189,9 @@ class View():
             countdown = "../assets/gui/countdown_images/"
             countdown += str(self.countdown_index) + ".tif"
             base_hit = pygame.image.load("../assets/gui/baseicon.jpg")
-            new_size_size = (25, 25)
+            new_size_size = (20, 20)
             scaled_base_hit = pygame.transform.scale(base_hit, new_size_size)
-            self.screen.blit(scaled_base_hit, (200, 500))
+            # self.screen.blit(scaled_base_hit, (200, 500))
             # Print each codename and score for every
             # Player on red team.
             # AND set team scores to the sum of the player scores
@@ -205,6 +205,8 @@ class View():
                         self.screen.blit(text_surface, (30, y_pos))
                         text_surface = font.render(str(red.score), True, RED_COLOR)
                         self.screen.blit(text_surface, (150, y_pos))
+                        # if red.has_hit_base = True:
+                        self.screen.blit(scaled_base_hit, (175, y_pos))
                         y_pos += 15
                         self.red_team_total_score += red.score
             # Reset y-pos to print green team.
