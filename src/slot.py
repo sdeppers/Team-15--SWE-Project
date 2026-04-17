@@ -9,8 +9,8 @@ DIVIDER_COLOR = (70, 74, 82)
 
 
 class Slot:
-    NUM_PER_SIDE = 16
-    TOTAL_SLOTS = 32
+    NUM_PER_SIDE = 15
+    TOTAL_SLOTS = 30
     DEFAULT_W = 180
     DEFAULT_H = 28
 

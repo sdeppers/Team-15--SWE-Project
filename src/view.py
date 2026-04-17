@@ -28,7 +28,7 @@ class View():
         self.slots = None
         self.slot_font = None
         self.clock_start = False
-        self.countdown_index = 16 # For testing. Final version will have this set to 30
+        self.countdown_index = 1 # For testing. Final version will have this set to 30
         self.start_time = 0
         # Controller has access to these because it has it's own view variable
         self.GAME_RUNNING = False
@@ -40,6 +40,9 @@ class View():
         self.event_strings_green = [''] * 10
 
         self.game_over_rect = pygame.Rect(25,600,170,45)
+
+        self.red_team_total_score = 0;
+        self.green_team_total_score = 0;
 
     def load_image(self, image_path):
         image_to_load = pygame.image.load(image_path)
@@ -184,6 +187,9 @@ class View():
             font = pygame.font.SysFont(None, 18)
             # Print each codename and score for every
             # Player on red team.
+            # AND set team scores to the sum of the player scores
+            self.red_team_total_score = 0;
+            self.green_team_total_score = 0;
             for red in self.slots:
                 if red.slot_index < Slot.NUM_PER_SIDE:
                     if red.player_name != "":
@@ -192,6 +198,7 @@ class View():
                         text_surface = font.render(str(red.score), True, RED_COLOR)
                         self.screen.blit(text_surface, (150, y_pos))
                         y_pos += 15
+                        self.red_team_total_score += red.score
             # Reset y-pos to print green team.
             y_pos = 80
             # Print green team
@@ -203,6 +210,18 @@ class View():
                         text_surface = font.render(str(green.score), True, GREEN_COLOR)
                         self.screen.blit(text_surface, (650, y_pos))
                         y_pos += 15
+                        self.green_team_total_score += green.score
+
+            # Print the total score for both teams, and the leading team's score blinks
+            red_score_string = "Score: " + str(self.red_team_total_score)
+            green_score_string = "Score: " + str(self.green_team_total_score)
+
+            font = pygame.font.SysFont(None, 50)
+            text_surface = font.render(red_score_string, True, RED_COLOR)
+            self.screen.blit(text_surface, (175, 350))
+            text_surface = font.render(green_score_string, True, GREEN_COLOR)
+            self.screen.blit(text_surface, (525, 350))
+
             # After countdown reaches 0, GAME_RUNNING = True
             if not self.GAME_RUNNING and not self.GAME_END:
             # Decrement countdown_index once every second
@@ -260,6 +279,7 @@ class View():
                     button_rect = button_text.get_rect(center=self.game_over_rect.center)
                     self.screen.blit(button_text, button_rect)
                 else:
+                    font = pygame.font.SysFont(None, 100) # I have no idea why this block is repeated....
                     minutes = math.floor(self.game_time_left / 60)
                     seconds = self.game_time_left - minutes * 60
                     time_text = f"{minutes}:{seconds:02d}"
