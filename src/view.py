@@ -39,6 +39,8 @@ class View():
         self.event_strings_red = [''] * 10
         self.event_strings_green = [''] * 10
 
+        self.game_over_rect = pygame.Rect(25,600,170,45)
+
     def load_image(self, image_path):
         image_to_load = pygame.image.load(image_path)
 
@@ -202,7 +204,7 @@ class View():
                         self.screen.blit(text_surface, (650, y_pos))
                         y_pos += 15
             # After countdown reaches 0, GAME_RUNNING = True
-            if not self.GAME_RUNNING:
+            if not self.GAME_RUNNING and not self.GAME_END:
             # Decrement countdown_index once every second
                 if self.start_time < (clock_timer - 1000):
                     if self.countdown_index > 0:
@@ -225,7 +227,13 @@ class View():
                     if self.game_time_left > 0:
                         self.game_time_left -= 1
                         self.start_time = clock_timer
+
+                        if self.game_time_left <= 0: # Final seconds of the game, show "0:00" and then end game on next tick
+                            self.game_time_left = 0
+                            self.GAME_RUNNING = False
+                            self.GAME_END = True
                     else:
+                        self.game_time_left = 0
                         self.GAME_RUNNING = False
                         self.GAME_END = True
                 font = pygame.font.SysFont(None, 100)
@@ -236,6 +244,29 @@ class View():
                 self.screen.blit(text_surface, (582, 652))
                 text_surface = font.render(time_text, True, RED_COLOR)
                 self.screen.blit(text_surface, (580, 650))
+                font = pygame.font.SysFont(None, 72)
+
+                if self.GAME_END:
+                    game_over_shadow = font.render("GAME OVER", True, BLACK_COLOR)
+                    game_over_text = font.render("GAME OVER", True, RED_COLOR)
+                    self.screen.blit(game_over_shadow, (422, 652))
+                    self.screen.blit(game_over_text, (420, 650))
+
+                    pygame.draw.rect(self.screen, (60, 60, 60), self.game_over_rect)
+                    pygame.draw.rect(self.screen, BLUE_COLOR, self.game_over_rect, 3)
+
+                    button_font = pygame.font.SysFont(None, 28)
+                    button_text = button_font.render("Back to Lobby", True, WHITE_COLOR)
+                    button_rect = button_text.get_rect(center=self.game_over_rect.center)
+                    self.screen.blit(button_text, button_rect)
+                else:
+                    minutes = math.floor(self.game_time_left / 60)
+                    seconds = self.game_time_left - minutes * 60
+                    time_text = f"{minutes}:{seconds:02d}"
+                    text_surface = font.render(time_text, True, BLACK_COLOR)
+                    self.screen.blit(text_surface, (582, 652))
+                    text_surface = font.render(time_text, True, RED_COLOR)
+                    self.screen.blit(text_surface, (580, 650))
 
                 # Print red events somewhere..
                 event_font = pygame.font.SysFont(None, 24)
