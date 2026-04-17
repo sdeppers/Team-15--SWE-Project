@@ -189,7 +189,7 @@ class View():
             countdown = "../assets/gui/countdown_images/"
             countdown += str(self.countdown_index) + ".tif"
             base_hit = pygame.image.load("../assets/gui/baseicon.jpg")
-            new_size_size = (20, 20)
+            new_size_size = (15, 15)
             scaled_base_hit = pygame.transform.scale(base_hit, new_size_size)
             # self.screen.blit(scaled_base_hit, (200, 500))
             # Print each codename and score for every
