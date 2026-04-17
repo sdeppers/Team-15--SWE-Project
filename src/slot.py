@@ -25,6 +25,7 @@ class Slot:
         self.device = None
         self.equipment = ""
         self.score = 0
+        self.has_hit_base = False
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.w, self.h)

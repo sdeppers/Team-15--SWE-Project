@@ -28,7 +28,7 @@ class View():
         self.slots = None
         self.slot_font = None
         self.clock_start = False
-        self.countdown_index = 1 # For testing. Final version will have this set to 30
+        self.countdown_index = 30 # For testing. Final version will have this set to 30
         self.start_time = 0
         # Controller has access to these because it has it's own view variable
         self.GAME_RUNNING = False
@@ -36,13 +36,14 @@ class View():
         # 6 minute timer (in ms)
         self.game_time_left = 360
         # Holds at most strings describing the last 10 game events *for each team
-        self.event_strings_red = [''] * 10
-        self.event_strings_green = [''] * 10
+        self.event_strings_red = [''] * 15
+        self.event_strings_green = [''] * 15
 
-        self.game_over_rect = pygame.Rect(25,600,170,45)
+        self.game_over_rect = pygame.Rect(550,580,170,45)
 
         self.red_team_total_score = 0;
         self.green_team_total_score = 0;
+        self.start_mp3 = False
 
     def load_image(self, image_path):
         image_to_load = pygame.image.load(image_path)
@@ -185,9 +186,20 @@ class View():
             # Y position of first codename in each list
             y_pos = 80
             font = pygame.font.SysFont(None, 18)
+            # Init base hit icon
+            countdown = "../assets/gui/countdown_images/"
+            countdown += str(self.countdown_index) + ".tif"
+            base_hit = pygame.image.load("../assets/gui/baseicon.jpg")
+            new_size_size = (15, 15)
+            scaled_base_hit = pygame.transform.scale(base_hit, new_size_size)
+            # Sort self.slots by score
+            sorted_slots = sorted(self.slots, key=lambda s: s.score, reverse = True)
+            self.slots = sorted_slots
+            # self.screen.blit(scaled_base_hit, (200, 500))
             # Print each codename and score for every
             # Player on red team.
             # AND set team scores to the sum of the player scores
+            # AND display the base hit icon if they've hit the base
             self.red_team_total_score = 0;
             self.green_team_total_score = 0;
             for red in self.slots:
@@ -197,6 +209,8 @@ class View():
                         self.screen.blit(text_surface, (30, y_pos))
                         text_surface = font.render(str(red.score), True, RED_COLOR)
                         self.screen.blit(text_surface, (150, y_pos))
+                        if red.has_hit_base == True:
+                            self.screen.blit(scaled_base_hit, (175, y_pos))
                         y_pos += 15
                         self.red_team_total_score += red.score
             # Reset y-pos to print green team.
@@ -209,24 +223,34 @@ class View():
                         self.screen.blit(text_surface, (530, y_pos))
                         text_surface = font.render(str(green.score), True, GREEN_COLOR)
                         self.screen.blit(text_surface, (650, y_pos))
+                        if green.has_hit_base == True:
+                            self.screen.blit(scaled_base_hit, (675, y_pos))
                         y_pos += 15
                         self.green_team_total_score += green.score
 
             # Print the total score for both teams, and the leading team's score blinks
-            red_score_string = "Score: " + str(self.red_team_total_score)
-            green_score_string = "Score: " + str(self.green_team_total_score)
+            red_score_string = " RED Score: " + str(self.red_team_total_score)
+            green_score_string = "GREEN Score: " + str(self.green_team_total_score)
 
-            font = pygame.font.SysFont(None, 50)
-            text_surface = font.render(red_score_string, True, RED_COLOR)
-            self.screen.blit(text_surface, (175, 350))
-            text_surface = font.render(green_score_string, True, GREEN_COLOR)
-            self.screen.blit(text_surface, (525, 350))
+            font = pygame.font.SysFont(None, 40)
+            # If a team is winning (or tied) it only displays it's score every other quarter second
+            # During 30 second countdown, neither team is 'winning'
+            if (self.red_team_total_score < self.green_team_total_score or self.start_time < (clock_timer - 750) or 
+            self.start_time > (clock_timer - 500) and self.start_time < (clock_timer - 250) or not self.GAME_RUNNING):
+                text_surface = font.render(red_score_string, True, RED_COLOR)
+                self.screen.blit(text_surface, (250, 100))
+            if (self.red_team_total_score > self.green_team_total_score or self.start_time < (clock_timer - 750) or 
+            self.start_time > (clock_timer - 500) and self.start_time < (clock_timer - 250) or not self.GAME_RUNNING):
+                text_surface = font.render(green_score_string, True, GREEN_COLOR)
+                self.screen.blit(text_surface, (250, 150))
 
             # After countdown reaches 0, GAME_RUNNING = True
             if not self.GAME_RUNNING and not self.GAME_END:
             # Decrement countdown_index once every second
                 if self.start_time < (clock_timer - 1000):
                     if self.countdown_index > 0:
+                        if (self.countdown_index == 18):
+                            self.start_mp3 = True
                         self.countdown_index -= 1
                         self.start_time = clock_timer
                     else:
@@ -255,17 +279,18 @@ class View():
                         self.game_time_left = 0
                         self.GAME_RUNNING = False
                         self.GAME_END = True
-                font = pygame.font.SysFont(None, 100)
-                minutes = math.floor(self.game_time_left / 60)
-                seconds = self.game_time_left - minutes * 60
-                time_text = f"{minutes}:{seconds:02d}"
-                text_surface = font.render(time_text, True, BLACK_COLOR)
-                self.screen.blit(text_surface, (582, 652))
-                text_surface = font.render(time_text, True, RED_COLOR)
-                self.screen.blit(text_surface, (580, 650))
-                font = pygame.font.SysFont(None, 72)
+                # font = pygame.font.SysFont(None, 100)
+                # minutes = math.floor(self.game_time_left / 60)
+                # seconds = self.game_time_left - minutes * 60
+                # time_text = f"{minutes}:{seconds:02d}"
+                # text_surface = font.render(time_text, True, BLACK_COLOR)
+                # self.screen.blit(text_surface, (582, 652))
+                # text_surface = font.render(time_text, True, RED_COLOR)
+                # self.screen.blit(text_surface, (580, 650))
+                # font = pygame.font.SysFont(None, 72)
 
                 if self.GAME_END:
+                    font = pygame.font.SysFont(None, 70)
                     game_over_shadow = font.render("GAME OVER", True, BLACK_COLOR)
                     game_over_text = font.render("GAME OVER", True, RED_COLOR)
                     self.screen.blit(game_over_shadow, (422, 652))
