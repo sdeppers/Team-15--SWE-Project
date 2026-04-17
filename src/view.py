@@ -28,7 +28,7 @@ class View():
         self.slots = None
         self.slot_font = None
         self.clock_start = False
-        self.countdown_index = 1 # For testing. Final version will have this set to 30
+        self.countdown_index = 30 # For testing. Final version will have this set to 30
         self.start_time = 0
         # Controller has access to these because it has it's own view variable
         self.GAME_RUNNING = False
@@ -39,10 +39,11 @@ class View():
         self.event_strings_red = [''] * 15
         self.event_strings_green = [''] * 15
 
-        self.game_over_rect = pygame.Rect(25,600,170,45)
+        self.game_over_rect = pygame.Rect(550,580,170,45)
 
         self.red_team_total_score = 0;
         self.green_team_total_score = 0;
+        self.start_mp3 = False
 
     def load_image(self, image_path):
         image_to_load = pygame.image.load(image_path)
@@ -248,6 +249,8 @@ class View():
             # Decrement countdown_index once every second
                 if self.start_time < (clock_timer - 1000):
                     if self.countdown_index > 0:
+                        if (self.countdown_index == 18):
+                            self.start_mp3 = True
                         self.countdown_index -= 1
                         self.start_time = clock_timer
                     else:
@@ -276,17 +279,18 @@ class View():
                         self.game_time_left = 0
                         self.GAME_RUNNING = False
                         self.GAME_END = True
-                font = pygame.font.SysFont(None, 100)
-                minutes = math.floor(self.game_time_left / 60)
-                seconds = self.game_time_left - minutes * 60
-                time_text = f"{minutes}:{seconds:02d}"
-                text_surface = font.render(time_text, True, BLACK_COLOR)
-                self.screen.blit(text_surface, (582, 652))
-                text_surface = font.render(time_text, True, RED_COLOR)
-                self.screen.blit(text_surface, (580, 650))
-                font = pygame.font.SysFont(None, 72)
+                # font = pygame.font.SysFont(None, 100)
+                # minutes = math.floor(self.game_time_left / 60)
+                # seconds = self.game_time_left - minutes * 60
+                # time_text = f"{minutes}:{seconds:02d}"
+                # text_surface = font.render(time_text, True, BLACK_COLOR)
+                # self.screen.blit(text_surface, (582, 652))
+                # text_surface = font.render(time_text, True, RED_COLOR)
+                # self.screen.blit(text_surface, (580, 650))
+                # font = pygame.font.SysFont(None, 72)
 
                 if self.GAME_END:
+                    font = pygame.font.SysFont(None, 70)
                     game_over_shadow = font.render("GAME OVER", True, BLACK_COLOR)
                     game_over_text = font.render("GAME OVER", True, RED_COLOR)
                     self.screen.blit(game_over_shadow, (422, 652))

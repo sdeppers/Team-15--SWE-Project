@@ -144,7 +144,7 @@ class Controller():
         if not self.mp3_has_been_selected:
             rand_int = random.randint(1, 8)
             self.mp3_filepath = "../assets/photon_tracks/Track0" + str(rand_int) + ".mp3"
-            print(self.mp3_filepath) # Testing only
+            # print(self.mp3_filepath) # Testing only
             pygame.mixer.init()
             self.mp3_has_been_selected = True
         # after splash time is up, switch to player entry
@@ -161,8 +161,8 @@ class Controller():
                     self.broadcast("221")
                 self.game_ended = True
 
-            if not self.mp3_playing:
-                print("Playing " + self.mp3_filepath) # For testing only
+            if not self.mp3_playing and self.view.start_mp3:
+                # print("Playing " + self.mp3_filepath) # For testing only
                 pygame.mixer.music.load(self.mp3_filepath)
                 pygame.mixer.music.play()
                 self.mp3_playing = True
