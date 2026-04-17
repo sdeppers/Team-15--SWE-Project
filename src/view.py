@@ -116,12 +116,8 @@ class View():
             pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
             # Equipment ID text is RED while it's taking user input
             if editField == 'equip':
-                pygame.draw.rect(self.screen, (50, 70, 120), equip_box_rect)
-                pygame.draw.rect(self.screen, (150,200,255), equip_box_rect, 3)
                 equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, RED_COLOR)
             else:
-                pygame.draw.rect(self.screen, BLACK_COLOR, equip_box_rect)
-                pygame.draw.rect(self.screen, (80, 80, 200), equip_box_rect, 2)
                 equip_label = self.slot_font.render(f"Equipment ID: {equipment_display}", True, WHITE_COLOR)
             self.screen.blit(equip_label, (310,105))
 
@@ -145,12 +141,11 @@ class View():
             self.screen.blit(name_label, (name_x_right, field_label_y))
 
             for one_slot in self.slots:
-                is_current_slot = one_slot.slot_index == selectedSlot
-                slot_field_active = is_current_slot and editField in ('id', 'name')
+                is_selected = one_slot.slot_index == selectedSlot
 
-                one_slot.draw(self.screen, self.slot_font, selected = slot_field_active,
-                                edit_field=editField if slot_field_active else None,
-                                edit_text=editText if slot_field_active else "")
+                one_slot.draw(self.screen, self.slot_font, selected = is_selected,
+                                edit_field=editField if is_selected else None,
+                                edit_text=editText if is_selected else "")
 
             pygame.display.flip()
             return
@@ -172,9 +167,9 @@ class View():
             scores_string = "Current Scores"
             action_string = "Current Game Action"
             text_surface = font.render(action_string, True, BLUE_COLOR)
-            self.screen.blit(text_surface, (400, 348))
-            text_surface = font.render(action_string, True, BLACK_COLOR)
-            self.screen.blit(text_surface, (398, 350))
+            self.screen.blit(text_surface, (400, 328))
+            text_surface = font.render(action_string, True, BLACK_COLOR) 
+            self.screen.blit(text_surface, (398, 330))
             text_surface = font.render(scores_string, True, WHITE_COLOR)
             self.screen.blit(text_surface, (260, 25))
             text_surface = font.render(scores_string, True, BLUE_COLOR)
@@ -241,6 +236,14 @@ class View():
                         self.game_time_left = 0
                         self.GAME_RUNNING = False
                         self.GAME_END = True
+                font = pygame.font.SysFont(None, 100)
+                minutes = math.floor(self.game_time_left / 60)
+                seconds = self.game_time_left - minutes * 60
+                time_text = f"{minutes}:{seconds:02d}"
+                text_surface = font.render(time_text, True, BLACK_COLOR)
+                self.screen.blit(text_surface, (582, 652))
+                text_surface = font.render(time_text, True, RED_COLOR)
+                self.screen.blit(text_surface, (580, 650))
                 font = pygame.font.SysFont(None, 72)
 
                 if self.GAME_END:
@@ -272,6 +275,14 @@ class View():
                     if event != "":
                         text_surface = event_font.render(event, True, RED_COLOR)
                         self.screen.blit(text_surface, (30, y_pos))
+                        y_pos += 24
+                        
+                # Printing green events
+                y_pos = 360
+                for event in self.event_strings_green:
+                    if event != "":
+                        text_surface = event_font.render(event, True, GREEN_COLOR)
+                        self.screen.blit(text_surface, (400, y_pos))
                         y_pos += 24
 
             pygame.display.flip()
