@@ -191,6 +191,9 @@ class View():
             base_hit = pygame.image.load("../assets/gui/baseicon.jpg")
             new_size_size = (15, 15)
             scaled_base_hit = pygame.transform.scale(base_hit, new_size_size)
+            # Sort self.slots by score
+            sorted_slots = sorted(self.slots, key=lambda s: s.score, reverse = True)
+            self.slots = sorted_slots
             # self.screen.blit(scaled_base_hit, (200, 500))
             # Print each codename and score for every
             # Player on red team.
@@ -205,8 +208,8 @@ class View():
                         self.screen.blit(text_surface, (30, y_pos))
                         text_surface = font.render(str(red.score), True, RED_COLOR)
                         self.screen.blit(text_surface, (150, y_pos))
-                        # if red.has_hit_base = True:
-                        self.screen.blit(scaled_base_hit, (175, y_pos))
+                        if red.has_hit_base == True:
+                            self.screen.blit(scaled_base_hit, (175, y_pos))
                         y_pos += 15
                         self.red_team_total_score += red.score
             # Reset y-pos to print green team.
@@ -219,6 +222,8 @@ class View():
                         self.screen.blit(text_surface, (530, y_pos))
                         text_surface = font.render(str(green.score), True, GREEN_COLOR)
                         self.screen.blit(text_surface, (650, y_pos))
+                        if green.has_hit_base == True:
+                            self.screen.blit(scaled_base_hit, (675, y_pos))
                         y_pos += 15
                         self.green_team_total_score += green.score
 
