@@ -185,9 +185,17 @@ class View():
             # Y position of first codename in each list
             y_pos = 80
             font = pygame.font.SysFont(None, 18)
+            # Init base hit icon
+            countdown = "../assets/gui/countdown_images/"
+            countdown += str(self.countdown_index) + ".tif"
+            base_hit = pygame.image.load("../assets/gui/baseicon.jpg")
+            new_size_size = (25, 25)
+            scaled_base_hit = pygame.transform.scale(base_hit, new_size_size)
+            self.screen.blit(scaled_base_hit, (200, 500))
             # Print each codename and score for every
             # Player on red team.
             # AND set team scores to the sum of the player scores
+            # AND display the base hit icon if they've hit the base
             self.red_team_total_score = 0;
             self.green_team_total_score = 0;
             for red in self.slots:
@@ -213,14 +221,20 @@ class View():
                         self.green_team_total_score += green.score
 
             # Print the total score for both teams, and the leading team's score blinks
-            red_score_string = "Score: " + str(self.red_team_total_score)
-            green_score_string = "Score: " + str(self.green_team_total_score)
+            red_score_string = " RED Score: " + str(self.red_team_total_score)
+            green_score_string = "GREEN Score: " + str(self.green_team_total_score)
 
-            font = pygame.font.SysFont(None, 50)
-            text_surface = font.render(red_score_string, True, RED_COLOR)
-            self.screen.blit(text_surface, (175, 350))
-            text_surface = font.render(green_score_string, True, GREEN_COLOR)
-            self.screen.blit(text_surface, (525, 350))
+            font = pygame.font.SysFont(None, 40)
+            # If a team is winning (or tied) it only displays it's score every other quarter second
+            # During 30 second countdown, neither team is 'winning'
+            if (self.red_team_total_score < self.green_team_total_score or self.start_time < (clock_timer - 750) or 
+            self.start_time > (clock_timer - 500) and self.start_time < (clock_timer - 250) or not self.GAME_RUNNING):
+                text_surface = font.render(red_score_string, True, RED_COLOR)
+                self.screen.blit(text_surface, (250, 100))
+            if (self.red_team_total_score > self.green_team_total_score or self.start_time < (clock_timer - 750) or 
+            self.start_time > (clock_timer - 500) and self.start_time < (clock_timer - 250) or not self.GAME_RUNNING):
+                text_surface = font.render(green_score_string, True, GREEN_COLOR)
+                self.screen.blit(text_surface, (250, 150))
 
             # After countdown reaches 0, GAME_RUNNING = True
             if not self.GAME_RUNNING and not self.GAME_END:
