@@ -297,3 +297,4 @@ class View():
         if empty_count == 0:
             self.event_strings_green.pop(0)
             self.event_strings_green.append('')
+#Test change to pull from my branch into the clone in my vm
