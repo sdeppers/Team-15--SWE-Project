@@ -106,13 +106,21 @@ class View():
             # rendering IP address box
             ip_box_rect = pygame.Rect(50, 30, 200, 30)
             pygame.draw.rect(self.screen, (80, 80, 200), ip_box_rect, 2)
-            ip_label = self.slot_font.render(f"IP: {ip_display}", True, WHITE_COLOR)
+            # IP text is RED when IP is selected
+            if editField == 'ip':
+                ip_label = self.slot_font.render(f"IP: {ip_display}", True, RED_COLOR)
+            else:
+                ip_label = self.slot_font.render(f"IP: {ip_display}", True, WHITE_COLOR)
             self.screen.blit(ip_label, (60, 35))
 
             # rendering UDP Port box
             port_box_rect = pygame.Rect(300, 30, 100, 30)
             pygame.draw.rect(self.screen, (80, 80, 200), port_box_rect, 2)
-            port_label = self.slot_font.render(f"Port: {port_display}", True, WHITE_COLOR)
+            # Port text is RED when port is selected
+            if editField == 'port':
+                port_label = self.slot_font.render(f"Port: {port_display}", True, RED_COLOR)
+            else:
+                port_label = self.slot_font.render(f"Port: {port_display}", True, WHITE_COLOR)
             self.screen.blit(port_label, (310,35))
 
             # rendering EQUIPMENT ID box
@@ -343,7 +351,7 @@ class View():
             # Decrement countdown_index once every second
                 if self.start_time < (clock_timer - 1000):
                     if self.countdown_index > 0:
-                        if (self.countdown_index == 18):
+                        if (self.countdown_index == 17):
                             self.start_mp3 = True
                         self.countdown_index -= 1
                         self.start_time = clock_timer
