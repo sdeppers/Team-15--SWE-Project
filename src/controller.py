@@ -162,7 +162,7 @@ class Controller():
                 self.game_ended = True
 
             if not self.mp3_playing and self.view.start_mp3:
-                # print("Playing " + self.mp3_filepath) # For testing only
+                print("Playing " + self.mp3_filepath) # For 'random' verification
                 pygame.mixer.music.load(self.mp3_filepath)
                 pygame.mixer.music.play()
                 self.mp3_playing = True
