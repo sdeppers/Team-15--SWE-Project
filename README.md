@@ -23,7 +23,9 @@ information in, using the same method as storing information in the 'player ID' 
 **NOTE:** An invalid IP or port number will result in termination of the application.
 8. Press **F12** while in the 'player entry' screen to **remove all players** from the roster.
 9. Press **F5** while in the 'player entry' screen to **enter the 'play action' screen.**\
-**NOTE:** The only user input available from the 'play action' screen is **ESCAPE**.
+**NOTE:** The only user input available from the 'play action' screen is **ESCAPE**\
+Until the 6 minute timer reaches 0. Then, a button will appear that allows user to\
+return to the player entry screen.
 10. Press **ESCAPE** at any time to **terminate** the application.
 11. In the virtual machine's terminal, execute the command\
 **psql -U student -d photon -c "Select * FROM players;"**\

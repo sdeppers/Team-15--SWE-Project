@@ -181,6 +181,8 @@ class View():
             text19 = "(Enter the 'Action Play Screen')"
             text20 = "7. Press ESC at any time to"
             text21 = "terminate the program."
+            text22 = "NOTE: Editing an ID field after a player"
+            text22 = "is added may result in unintended behavior."
 
             text_y_pos = 150
             text_surface = font.render(text1, True, WHITE_COLOR)
@@ -250,6 +252,13 @@ class View():
             self.screen.blit(text_surface, (235,text_y_pos))
             text_y_pos += 15
             text_surface = font.render(text21, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_y_pos += 15
+            text_surface = font.render(text22, True, WHITE_COLOR)
+            self.screen.blit(text_surface, (235,text_y_pos))
+            text_y_pos += 15
+            text_surface = font.render(text23, True, WHITE_COLOR)
             self.screen.blit(text_surface, (235,text_y_pos))
             text_y_pos += 15
 
