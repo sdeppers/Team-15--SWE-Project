@@ -28,13 +28,13 @@ class View():
         self.slots = None
         self.slot_font = None
         self.clock_start = False
-        self.countdown_index = 1 # For testing. Final version will have this set to 30
+        self.countdown_index = 30 # For testing. Final version will have this set to 30
         self.start_time = 0
         # Controller has access to these because it has it's own view variable
         self.GAME_RUNNING = False
         self.GAME_END = False
         # 6 minute timer (in ms)
-        self.game_time_left = 120
+        self.game_time_left = 360
         # Holds at most strings describing the last 10 game events *for each team
         self.event_strings_red = [''] * 15
         self.event_strings_green = [''] * 15
