@@ -28,13 +28,13 @@ class View():
         self.slots = None
         self.slot_font = None
         self.clock_start = False
-        self.countdown_index = 30 # For testing. Final version will have this set to 30
+        self.countdown_index = 1 # For testing. Final version will have this set to 30
         self.start_time = 0
         # Controller has access to these because it has it's own view variable
         self.GAME_RUNNING = False
         self.GAME_END = False
         # 6 minute timer (in ms)
-        self.game_time_left = 360
+        self.game_time_left = 60
         # Holds at most strings describing the last 10 game events *for each team
         self.event_strings_red = [''] * 15
         self.event_strings_green = [''] * 15
@@ -400,6 +400,23 @@ class View():
                 # self.screen.blit(text_surface, (580, 650))
                 # font = pygame.font.SysFont(None, 72)
 
+                # Print red events somewhere..
+                event_font = pygame.font.SysFont(None, 24)
+                y_pos = 360
+                for event in self.event_strings_red:
+                    if event != "":
+                        text_surface = event_font.render(event, True, RED_COLOR)
+                        self.screen.blit(text_surface, (30, y_pos))
+                        y_pos += 24
+                        
+                # Printing green events
+                y_pos = 360
+                for event in self.event_strings_green:
+                    if event != "":
+                        text_surface = event_font.render(event, True, GREEN_COLOR)
+                        self.screen.blit(text_surface, (400, y_pos))
+                        y_pos += 24
+                # Timer and GAME OVER message will display over events, where applicable.
                 if self.GAME_END:
                     font = pygame.font.SysFont(None, 70)
                     game_over_shadow = font.render("GAME OVER", True, BLACK_COLOR)
@@ -423,23 +440,6 @@ class View():
                     self.screen.blit(text_surface, (582, 652))
                     text_surface = font.render(time_text, True, RED_COLOR)
                     self.screen.blit(text_surface, (580, 650))
-
-                # Print red events somewhere..
-                event_font = pygame.font.SysFont(None, 24)
-                y_pos = 360
-                for event in self.event_strings_red:
-                    if event != "":
-                        text_surface = event_font.render(event, True, RED_COLOR)
-                        self.screen.blit(text_surface, (30, y_pos))
-                        y_pos += 24
-                        
-                # Printing green events
-                y_pos = 360
-                for event in self.event_strings_green:
-                    if event != "":
-                        text_surface = event_font.render(event, True, GREEN_COLOR)
-                        self.screen.blit(text_surface, (400, y_pos))
-                        y_pos += 24
 
             pygame.display.flip()
 
