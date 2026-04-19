@@ -182,7 +182,7 @@ class View():
             text20 = "7. Press ESC at any time to"
             text21 = "terminate the program."
             text22 = "NOTE: Editing an ID field after a player"
-            text22 = "is added may result in unintended behavior."
+            text23 = "is added may result in unintended behavior."
 
             text_y_pos = 150
             text_surface = font.render(text1, True, WHITE_COLOR)
