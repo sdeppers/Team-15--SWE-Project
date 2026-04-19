@@ -34,7 +34,7 @@ class View():
         self.GAME_RUNNING = False
         self.GAME_END = False
         # 6 minute timer (in ms)
-        self.game_time_left = 60
+        self.game_time_left = 120
         # Holds at most strings describing the last 10 game events *for each team
         self.event_strings_red = [''] * 15
         self.event_strings_green = [''] * 15
