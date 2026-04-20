@@ -1,6 +1,6 @@
 import pygame
 
-# Slot: horizontal bar (wide, short). Used by View for the player entry screen.
+# slot: horizontal bar (wide, short). Used by View for the player entry screen.
 DEFAULT_W = 180
 DEFAULT_H = 35
 ID_WIDTH = 36
@@ -73,7 +73,7 @@ class Slot:
                 id_rect.right = div_x - 2
             surface.blit(id_surf, id_rect)
 
-        # draw player_name in the right zone (clip if too long)
+        # draws player_name in the right zone (clip if too long)
         if selected and edit_field == 'name':
             name_str = (edit_text or "")[:10]
         else:
